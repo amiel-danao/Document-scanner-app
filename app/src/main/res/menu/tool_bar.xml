@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/item2"
+        android:icon="@drawable/ic_search_black_24dp"
+        android:title="Search"
+        app:actionViewClass="android.widget.SearchView"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/userProfile"
+        android:icon="@drawable/ic_baseline_folder_24"
+        android:title="Item"
+        app:showAsAction="always" />
+    <item
+        android:title="Logout"
+        android:id="@+id/logout"
+        />
+
+</menu>

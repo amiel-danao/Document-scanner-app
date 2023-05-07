@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "396611229412",
+    "firebase_url": "https://document-qr-scan-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "document-qr-scan",
+    "storage_bucket": "document-qr-scan.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:396611229412:android:4b1707e05ed8378e897ef1",
+        "android_client_info": {
+          "package_name": "com.thesis.documentscanner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "396611229412-meemmneuumsv8plvpcdcd6jjcqrpt023.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thesis.documentscanner",
+            "certificate_hash": "e68c2085c623cf65416502451ce590d1c0163a5c"
+          }
+        },
+        {
+          "client_id": "396611229412-0tco62fae3bu6p59kaehfsdvj4e0d461.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXgLBvKKwbkN84_hV1pi2keER5DjEJciY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "396611229412-0tco62fae3bu6p59kaehfsdvj4e0d461.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

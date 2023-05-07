@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/tools"
+    app:ignore="NamespaceTypo"
+    android:id="@+id/notification_item_layout"
+    >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+            <TextView
+                android:id="@+id/NotificationName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20sp"
+                android:layout_marginTop="10sp"
+                android:textColor="#000"
+                android:textFontWeight="100"
+                android:textSize="17sp"
+                android:text = "Name"
+                android:textStyle="bold"
+                />
+
+            <TextView
+                android:id="@+id/NotificationDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:bottom="@+id/NotificationName"
+                android:layout_marginLeft="20sp"
+                android:layout_marginTop="0sp"
+                android:textColor="#000"
+                android:textFontWeight="100"
+                android:textSize="10sp"
+                android:text="Details"
+                />
+            <View
+                android:layout_width="500sp"
+                android:layout_height="0.001dp"
+                android:background="@android:color/black"
+                android:layout_marginTop="10sp"
+                android:layout_marginLeft="0sp"/>
+        </LinearLayout>
+
+
+
+</RelativeLayout>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/Administrator/Documents/Github/Document-Digitization-Service-main/app/src/main/res/layout/activity_home.xml" value="0.21422101449275363" />
+        <entry key="..\:/Users/Administrator/Documents/Github/Document-Digitization-Service-main/app/src/main/res/layout/activity_main.xml" value="0.16354166666666667" />
+        <entry key="..\:/Users/Administrator/Documents/Github/Document-Digitization-Service-main/app/src/main/res/layout/activity_profile.xml" value="0.17760416666666667" />
+        <entry key="..\:/Users/Administrator/Documents/Github/Document-Digitization-Service-main/app/src/main/res/layout/activity_user_profile.xml" value="0.1953125" />
+        <entry key="..\:/Users/Administrator/Documents/Github/Document-Digitization-Service-main/app/src/main/res/layout/fragment_private_repo.xml" value="0.21422101449275363" />
+        <entry key="..\:/Users/Administrator/Documents/Github/Document-Digitization-Service-main/app/src/main/res/menu/bottom_navigation.xml" value="0.20677083333333332" />
+        <entry key="..\:/Users/Administrator/Documents/Github/Document-Digitization-Service-main/app/src/main/res/menu/tool_bar.xml" value="0.2671875" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
+</project>
