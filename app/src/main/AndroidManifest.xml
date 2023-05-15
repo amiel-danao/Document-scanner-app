@@ -2,7 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.thesis.documentscanner">
 
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -14,15 +18,18 @@
         <activity
             android:name="com.thesis.documentscanner.Views.userprofile.UserProfile"
             android:label="@string/title_activity_user_profile"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait"/>
-        <activity android:name="com.thesis.documentscanner.Home"
-            android:screenOrientation="portrait"/>
-        <activity android:name="com.thesis.documentscanner.Views.Home.ProfileActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name="com.thesis.documentscanner.MainActivity"
             android:screenOrientation="portrait"
-            android:exported="true">
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.thesis.documentscanner.Home"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.thesis.documentscanner.Views.Home.ProfileActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.thesis.documentscanner.MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

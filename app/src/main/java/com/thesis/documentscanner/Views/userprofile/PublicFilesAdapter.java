@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,15 +40,16 @@ public class PublicFilesAdapter extends RecyclerView.Adapter<PublicFilesAdapter.
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
-        ((PublicFilesAdapter.ViewHolder)viewHolder).username.setText(files.get(position).getName());
+    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
+        File file = files.get(viewHolder.getBindingAdapterPosition());
+        ((PublicFilesAdapter.ViewHolder)viewHolder).username.setText(file.getName());
 
         ((PublicFilesAdapter.ViewHolder)viewHolder).parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "onClick: clicked on: " + files.get(position).getName());
+                Log.d(TAG, "onClick: clicked on: " + file.getName());
                 Toast.makeText(mContext, "File is opening", Toast.LENGTH_SHORT).show();
-                Intent implicit = new Intent(Intent.ACTION_VIEW, Uri.parse(files.get(position).getFileurl()));
+                Intent implicit = new Intent(Intent.ACTION_VIEW, Uri.parse(file.getFileurl()));
                 implicit.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(implicit);
             }
@@ -62,7 +64,7 @@ public class PublicFilesAdapter extends RecyclerView.Adapter<PublicFilesAdapter.
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView username;
-        RelativeLayout parentLayout;
+        LinearLayout parentLayout;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

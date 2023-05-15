@@ -1,18 +1,55 @@
 package com.thesis.documentscanner.Models;
+
+import androidx.annotation.Nullable;
+
+import com.google.firebase.Timestamp;
+
 public class File {
+
+    private String fileurl;
+    private String qrUrl;
+    private String name;
+    private String fileType;
+    private String visibility;
+    private Timestamp dateUploaded;
 
     public File(){
 
     }
 
-    public File(String fileName, String fileUrl, String userId) {
-        name = fileName;
-        fileurl = fileUrl;
+    public File(String fileurl, String qrUrl, String name, String fileType, String visibility, Timestamp dateUploaded, String userId) {
+        this.fileurl = fileurl;
+        this.qrUrl = qrUrl;
+        this.name = name;
+        this.fileType = fileType;
+        this.visibility = visibility;
+        this.dateUploaded = dateUploaded;
         UserId = userId;
     }
 
-    private String fileurl;
-    private String name;
+    public String getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
+    }
+
+    public Timestamp getDateUploaded() {
+        return dateUploaded;
+    }
+
+    public void setDateUploaded(Timestamp dateUploaded) {
+        this.dateUploaded = dateUploaded;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
+    }
 
     public String getUserId() {
         return UserId;
@@ -35,7 +72,29 @@ public class File {
         return name;
     }
 
+    public String getQrUrl() {
+        return qrUrl;
+    }
+
+    public void setQrUrl(String qrUrl) {
+        this.qrUrl = qrUrl;
+    }
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        assert obj != null;
+        if (getClass() != obj.getClass())
+            return false;
+        File otherFile = (File)obj;
+        return this.fileurl.equals(otherFile.fileurl);
     }
 }

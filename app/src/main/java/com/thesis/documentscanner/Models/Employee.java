@@ -51,5 +51,13 @@ public class Employee {
     public void setUID(String UID) {
         this.UID = UID;
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
 

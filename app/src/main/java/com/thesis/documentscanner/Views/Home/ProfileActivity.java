@@ -15,18 +15,13 @@ import com.bumptech.glide.Glide;
 import com.thesis.documentscanner.Models.File;
 import com.thesis.documentscanner.R;
 import com.thesis.documentscanner.Views.userprofile.PublicFilesAdapter;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
 public class ProfileActivity extends AppCompatActivity {
     private ArrayList<File> files ;
     private String UID;
-    private DatabaseReference databaseReference;
+//    private DatabaseReference databaseReference;
 
     private static final String TAG = "ProfileActivity";
 
@@ -38,7 +33,7 @@ public class ProfileActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: started.");
         getIncomingIntent();
 
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(UID).child("PublicFiles");
+//        databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(UID).child("PublicFiles");
 
         files = new ArrayList<>();
 
@@ -49,22 +44,22 @@ public class ProfileActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
         //Fetch file list from firebase
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
-                    File file = dataSnapshot.getValue(File.class);
-                    files.add(file);
-                }
-                adapter.notifyDataSetChanged();
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+//        databaseReference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+//                    File file = dataSnapshot.getValue(File.class);
+//                    files.add(file);
+//                }
+//                adapter.notifyDataSetChanged();
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
     }
 
     //Get incoming intent

@@ -9,7 +9,8 @@
         android:icon="@drawable/ic_baseline_folder_24"
         android:title="Private Repository"/>
     <item
-        android:id="@+id/notification_activity"
-        android:icon="@drawable/ic_baseline_notifications_24"
-        android:title="Notification Activity"/>
+        android:id="@+id/qr_scanner_activity"
+        android:icon="@drawable/ic_baseline_qr_code_scanner_24"
+        android:title="QR Scanner"
+        android:visible="true" />
 </menu>

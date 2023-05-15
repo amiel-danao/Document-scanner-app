@@ -13,17 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.thesis.documentscanner.Models.Employee;
 import com.thesis.documentscanner.R;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
     RecyclerView recyclerView;
-    DatabaseReference database;
+//    DatabaseReference database;
     HomeViewAdapter homeViewAdapter;
     ArrayList<Employee> list;
 
@@ -32,7 +27,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_home, container, false);
         recyclerView = view.findViewById(R.id.home_recyler_view);
-        database = FirebaseDatabase.getInstance().getReference("UserInfo");
+//        database = FirebaseDatabase.getInstance().getReference("UserInfo");
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
@@ -41,24 +36,24 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(homeViewAdapter);
 
         //Fetch assigned public folder list from firebase
-        database.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-
-                  Employee employee = dataSnapshot.getValue(Employee.class);
-                    list.add(employee);
-
-                }
-                homeViewAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+//        database.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//
+//                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+//
+//                  Employee employee = dataSnapshot.getValue(Employee.class);
+//                    list.add(employee);
+//
+//                }
+//                homeViewAdapter.notifyDataSetChanged();
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
 
         return view;
     }

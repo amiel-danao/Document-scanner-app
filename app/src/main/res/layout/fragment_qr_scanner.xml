@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <SurfaceView
+        android:id="@+id/surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".7" />
+
+    <ImageButton
+        android:id="@+id/clearQRButton"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="end"
+        android:layout_weight=".06"
+        android:backgroundTint="@color/design_default_color_error"
+        android:src="@android:drawable/ic_menu_close_clear_cancel" />
+
+    <ScrollView
+        android:id="@+id/previewForm"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.19"
+        android:fillViewport="true"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp">
+
+            <TextView
+                android:id="@+id/txtUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:ellipsize="end"
+                android:maxLines="3"
+                android:textIsSelectable="true" />
+
+            <TextView
+                android:id="@+id/txtFileName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:textIsSelectable="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtFileExtension"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:textIsSelectable="true" />
+
+            <TextView
+                android:id="@+id/txtVisibility"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:textIsSelectable="true" />
+
+            <TextView
+                android:id="@+id/txtTimeStamp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:textIsSelectable="true" />
+
+            <TextView
+                android:id="@+id/txtUID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:textIsSelectable="true" />
+
+            <TextView
+                android:id="@+id/txtSender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:textIsSelectable="true" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <ImageButton
+        android:id="@+id/downloadButton"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="10dp"
+        android:layout_weight=".05"
+        android:background="@color/colorAccent"
+        android:clickable="true"
+        android:padding="10dp"
+        android:src="@android:drawable/stat_sys_download_done"
+        android:visibility="visible" />
+
+</LinearLayout>

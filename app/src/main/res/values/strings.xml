@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Document Digitization Service</string>
+    <string name="app_name">Document QR Scanner</string>
     <string name="todo" />
     <string name="textview" />
     <string name="email">email</string>
