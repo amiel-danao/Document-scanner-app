@@ -11,9 +11,10 @@ public class Employee {
 
     }
 
-    public Employee(String name, String avatar, String role, String UID) {
+    public Employee(String name, String UID, String email, String avatar, String role) {
         this.name = name;
         this.UID = UID;
+        this.email = email;
         this.avatar = avatar;
         this.role = role;
     }

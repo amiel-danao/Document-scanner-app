@@ -174,7 +174,7 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
                         String timeStamp = jsonObject.getString("timestamp");
                         String sender = jsonObject.getString("sender");
                         String uid = jsonObject.getString("uid");
-                        scannedFile = new File(url, "", name, fileType, visibility, Timestamp.now(), uid);
+                        scannedFile = new File(url, "", name, fileType, visibility, sender, Timestamp.now(), uid);
                         txtUrl.setText(url);
                         txtFileName.setText("File name: "+name);
                         txtFileExtension.setText("File type: "+fileType);
@@ -206,7 +206,9 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
             if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            cameraSource.start(surfaceView.getHolder());
+            if(cameraSource != null) {
+                cameraSource.start(surfaceView.getHolder());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -220,7 +222,9 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
 
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
-        cameraSource.stop();
+        if(cameraSource != null) {
+            cameraSource.stop();
+        }
     }
 
     @Override

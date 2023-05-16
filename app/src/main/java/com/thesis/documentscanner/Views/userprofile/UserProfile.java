@@ -64,7 +64,14 @@ public class UserProfile extends AppCompatActivity {
     private ActivityResultLauncher<Intent> filePickerLauncher;
     private ActivityResultLauncher<String> permissionLauncher;
     private ActivityResultLauncher<Intent> appSettingsLauncher;
-    private final String[] allowedFileExtensions = {"text/csv", "text/comma-separated-values", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-powerpoint", "application/vnd.ms-excel", "text/plain", "text/rtf", "application/pdf"};
+    private final String[] allowedFileExtensions = {"text/csv", "text/comma-separated-values", "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-powerpoint", "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "image/x-ms-bmp", "image/jpeg", "image/png",
+            "text/plain", "text/rtf", "application/pdf"
+    };
     private EditText fileNameEdit;
     private AlertDialog.Builder dialog;
     private Employee profile;
@@ -273,21 +280,21 @@ public class UserProfile extends AppCompatActivity {
 
                                         String visibility = visibilitySwitch.isChecked()? "public" : "private";
 
-                                        JSONObject jsonMap = new JSONObject();
-                                        try {
-                                            jsonMap.put("url", URL);
-                                            jsonMap.put("fileName", fileName);
-                                            jsonMap.put("fileExtension", fileExtension);
-                                            jsonMap.put("visibility", visibility);
-                                            jsonMap.put("timestamp", dateEdit.getText().toString());
-                                            jsonMap.put("uid", UID);
-                                            jsonMap.put("sender", profile.getName());
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                            // Handle any JSON-related errors
-                                        }
+//                                        JSONObject jsonMap = new JSONObject();
+//                                        try {
+//                                            jsonMap.put("url", URL);
+//                                            jsonMap.put("fileName", fileName);
+//                                            jsonMap.put("fileExtension", fileExtension);
+//                                            jsonMap.put("visibility", visibility);
+//                                            jsonMap.put("timestamp", dateEdit.getText().toString());
+//                                            jsonMap.put("uid", UID);
+//                                            jsonMap.put("sender", profile.getName());
+//                                        } catch (JSONException e) {
+//                                            e.printStackTrace();
+//                                            // Handle any JSON-related errors
+//                                        }
 
-                                        String content = jsonMap.toString();
+                                        String content = fileUri.toString();
                                         Bitmap qrBitmap = QRGenerator.generateQRCode(content);
 
                                         FirebaseStorageHelper.uploadBitmapToFirebaseStorage(qrBitmap, fileName, folder, storageTask -> {
@@ -295,7 +302,7 @@ public class UserProfile extends AppCompatActivity {
                                                 Uri downloadUri = storageTask.getResult();
                                                 String qrUrl = downloadUri.toString();
                                                 // Use the image URL as needed (e.g., save it to a database)
-                                                File file = new File(URL, qrUrl, fileName, fileExtension, visibility, timestamp, UID);
+                                                File file = new File(URL, qrUrl, fileName, fileExtension, visibility, profile.getName(), timestamp, UID);
 
                                                 DocumentReference documentReference = FirebaseFirestore.getInstance().collection("Files").document();
 

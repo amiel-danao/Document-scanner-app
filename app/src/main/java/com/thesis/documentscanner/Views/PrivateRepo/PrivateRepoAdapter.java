@@ -2,10 +2,8 @@ package com.thesis.documentscanner.Views.PrivateRepo;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,11 +22,16 @@ import com.bumptech.glide.Glide;
 import com.thesis.documentscanner.Models.File;
 import com.thesis.documentscanner.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+
 import android.app.DownloadManager;
 
 public class PrivateRepoAdapter extends RecyclerView.Adapter {
     private static final String TAG = "PrivateRepoAdapter";
+    private final SimpleDateFormat formatter;
 
     private ArrayList<File> files;
     private Context mContext;
@@ -37,6 +40,7 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
     public PrivateRepoAdapter(ArrayList<File> files, Context mContext) {
         this.files = files;
         this.mContext = mContext;
+        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a", Locale.ENGLISH);
     }
 
     @NonNull
@@ -50,16 +54,24 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         File file = files.get(holder.getBindingAdapterPosition());
-        ((FileViewHolder)holder).username.setText(file.getName());
-
         FileViewHolder fileViewHolder = ((FileViewHolder) holder);
+        fileViewHolder.fileName.setText(file.getName());
+        fileViewHolder.fileType.setText("Type: "+ file.getFileType());
+        fileViewHolder.visibility.setText(file.getVisibility());
+        fileViewHolder.sender.setText("Sender: "+ file.getSender());
+
+        Date localDateTime = file.getDateUploaded().toDate();
+
+        String formattedDateTime = formatter.format(localDateTime);
+        fileViewHolder.dateUpload.setText("Uploaded: " + formattedDateTime);
+
         Glide.with(mContext).load(file.getQrUrl()).into(fileViewHolder.qrImageView);
 
-        fileViewHolder.qrImageView.setTag(file.getQrUrl());
-        fileViewHolder.qrImageView.setOnClickListener(clickListener);
+        fileViewHolder.qrImageView.setTag(file);
+        fileViewHolder.qrImageView.setOnClickListener(enlargeQRClick);
 
-        fileViewHolder.parentLayout.setTag(file);
-        fileViewHolder.parentLayout.setOnClickListener(downloadClickListener);
+        fileViewHolder.downloadButton.setTag(file);
+        fileViewHolder.downloadButton.setOnClickListener(downloadClickListener);
     }
 
     final View.OnClickListener downloadClickListener = new View.OnClickListener() {
@@ -67,9 +79,6 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
         public void onClick(View v) {
             File file = (File)v.getTag();
             Toast.makeText(mContext, "File is opening", Toast.LENGTH_SHORT).show();
-//            Intent implicit = new Intent(Intent.ACTION_VIEW, Uri.parse(file.getFileurl()));
-//            implicit.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            mContext.startActivity(implicit);
             DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(file.getFileurl()));
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
@@ -84,17 +93,24 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
         }
     };
 
-    final View.OnClickListener clickListener = new View.OnClickListener() {
+    final View.OnClickListener enlargeQRClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            File file = (File)v.getTag();
             // Inflate the custom layout for the AlertDialog
             LayoutInflater inflater = LayoutInflater.from(mContext);
             View dialogView = inflater.inflate(R.layout.dialog_image_enlarged, null);
             ImageView imageViewEnlarged = dialogView.findViewById(R.id.image_enlarged);
+            TextView folder_name = dialogView.findViewById(R.id.folder_name);
+            ImageView downloadIcon = dialogView.findViewById(R.id.downloadIcon);
+
+            folder_name.setText(file.getName());
+            downloadIcon.setTag(file);
+            downloadIcon.setOnClickListener(downloadClickListener);
 
             // Load the image using Glide into the enlarged ImageView
             Glide.with(mContext)
-                    .load((String)v.getTag())
+                    .load(file.getQrUrl())
                     .into(imageViewEnlarged);
 
             // Create and show the AlertDialog
@@ -129,14 +145,19 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
     }
 
     public static class FileViewHolder extends RecyclerView.ViewHolder {
-        TextView username;
+        TextView fileName, fileType, visibility, sender, dateUpload;
         ImageView qrImageView;
         LinearLayout parentLayout;
         View downloadButton;
 
         public FileViewHolder(@NonNull View itemView) {
             super(itemView);
-            username = itemView.findViewById(R.id.folder_name);
+            fileName = itemView.findViewById(R.id.folder_name);
+            fileType = itemView.findViewById(R.id.fileType);
+            visibility = itemView.findViewById(R.id.visibility);
+            sender = itemView.findViewById(R.id.sender);
+            dateUpload = itemView.findViewById(R.id.dateUpload);
+
             parentLayout = itemView.findViewById(R.id.private_repo_item_layout);
             qrImageView = itemView.findViewById(R.id.idIVQrcode);
             downloadButton = itemView.findViewById(R.id.downloadIcon);

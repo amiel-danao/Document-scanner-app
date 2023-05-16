@@ -11,18 +11,20 @@ public class File {
     private String name;
     private String fileType;
     private String visibility;
+    private String sender;
     private Timestamp dateUploaded;
 
     public File(){
 
     }
 
-    public File(String fileurl, String qrUrl, String name, String fileType, String visibility, Timestamp dateUploaded, String userId) {
+    public File(String fileurl, String qrUrl, String name, String fileType, String visibility, String sender, Timestamp dateUploaded, String userId) {
         this.fileurl = fileurl;
         this.qrUrl = qrUrl;
         this.name = name;
         this.fileType = fileType;
         this.visibility = visibility;
+        this.sender = sender;
         this.dateUploaded = dateUploaded;
         UserId = userId;
     }
@@ -96,5 +98,13 @@ public class File {
             return false;
         File otherFile = (File)obj;
         return this.fileurl.equals(otherFile.fileurl);
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
     }
 }
