@@ -42,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if(user != null){
                     Intent intent = new Intent(getApplicationContext(), Home.class);
-                    FirebaseQueries firebaseQueries= FirebaseQueries.getInstance();
-                    firebaseQueries.setUID(user.getUid());
                     startActivity(intent);
                     finish();
                 }else {

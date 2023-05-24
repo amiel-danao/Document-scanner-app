@@ -1,6 +1,13 @@
 <!-- dialog_image_enlarged.xml -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -21,6 +28,52 @@
         android:layout_height="wrap_content"
         android:scaleType="fitCenter" />
 
+    <LinearLayout
+        android:id="@+id/statusLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight=".6"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingRight="10dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/txtStatusLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".2"
+            android:text="Status:"
+            android:textAlignment="textStart"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/editStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".7"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Pending" />
+
+        <ImageButton
+            android:id="@+id/btnSaveStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight=".1"
+            android:backgroundTint="@color/colorAccent"
+            app:tint="@color/design_default_color_on_secondary"
+            card_view:srcCompat="@drawable/ic_baseline_save_24" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btnDownloadQR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight=".6"
+        android:backgroundTint="@android:color/holo_green_light"
+        card_view:srcCompat="@drawable/ic_baseline_qr_code_scanner_24" />
+
     <ImageView
         android:id="@+id/downloadIcon"
         android:layout_width="match_parent"
@@ -34,3 +87,4 @@
         android:visibility="visible"
         card_view:srcCompat="@android:drawable/stat_sys_download" />
 </LinearLayout>
+</ScrollView>

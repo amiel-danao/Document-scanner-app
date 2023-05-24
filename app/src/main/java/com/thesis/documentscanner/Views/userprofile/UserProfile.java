@@ -1,7 +1,6 @@
 package com.thesis.documentscanner.Views.userprofile;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -18,36 +17,26 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.thesis.documentscanner.FirebaseQueries;
 import com.thesis.documentscanner.FirebaseStorageHelper;
 import com.thesis.documentscanner.MainActivity;
 import com.thesis.documentscanner.Models.Employee;
 import com.thesis.documentscanner.Models.File;
 import com.thesis.documentscanner.QRGenerator;
 import com.thesis.documentscanner.R;
-import com.thesis.documentscanner.Views.PrivateRepo.PrivateRepoFragment;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -79,13 +68,14 @@ public class UserProfile extends AppCompatActivity {
     private SimpleDateFormat simpleDateTimeFormat;
     private SwitchCompat visibilitySwitch;
     private TextView fileTypeEdit;
+    private EditText editStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
 
-        UID = FirebaseQueries.getInstance().getUID();
+        UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         auth = FirebaseAuth.getInstance();
         if(auth.getCurrentUser() == null){
@@ -101,6 +91,7 @@ public class UserProfile extends AppCompatActivity {
         fileTypeEdit = findViewById(R.id.fileTypeEdit);
         dateEdit = findViewById(R.id.dateEdit);
         visibilitySwitch = findViewById(R.id.visibilitySwitch);
+        editStatus = findViewById(R.id.editStatus);
 
         setupFilePicker();
         setupPermissionLauncher();
@@ -224,6 +215,10 @@ public class UserProfile extends AppCompatActivity {
             fileNameEdit.setError("This field is required");
             return false;
         }
+
+        if(editStatus.getText().toString().isEmpty()){
+            editStatus.setError("This field is required");
+        }
         return true;
     }
 
@@ -259,7 +254,6 @@ public class UserProfile extends AppCompatActivity {
                                 final StorageReference fileRef = folderRef.child(fileName + "." + fileExtension);
                                 fileRef.putFile(fileUri).addOnSuccessListener(taskSnapshot -> {
 
-
                                     Task<Uri> downloadUrlTask = fileRef.getDownloadUrl();
 
                                     downloadUrlTask.addOnFailureListener(e -> loading.setVisibility(View.GONE));
@@ -280,40 +274,24 @@ public class UserProfile extends AppCompatActivity {
 
                                         String visibility = visibilitySwitch.isChecked()? "public" : "private";
 
-//                                        JSONObject jsonMap = new JSONObject();
-//                                        try {
-//                                            jsonMap.put("url", URL);
-//                                            jsonMap.put("fileName", fileName);
-//                                            jsonMap.put("fileExtension", fileExtension);
-//                                            jsonMap.put("visibility", visibility);
-//                                            jsonMap.put("timestamp", dateEdit.getText().toString());
-//                                            jsonMap.put("uid", UID);
-//                                            jsonMap.put("sender", profile.getName());
-//                                        } catch (JSONException e) {
-//                                            e.printStackTrace();
-//                                            // Handle any JSON-related errors
-//                                        }
 
-                                        String content = fileUri.toString();
-                                        Bitmap qrBitmap = QRGenerator.generateQRCode(content);
+                                        Bitmap qrBitmap = QRGenerator.generateQRCode(URL);
 
                                         FirebaseStorageHelper.uploadBitmapToFirebaseStorage(qrBitmap, fileName, folder, storageTask -> {
                                             if(storageTask.isSuccessful()){
                                                 Uri downloadUri = storageTask.getResult();
                                                 String qrUrl = downloadUri.toString();
-                                                // Use the image URL as needed (e.g., save it to a database)
-                                                File file = new File(URL, qrUrl, fileName, fileExtension, visibility, profile.getName(), timestamp, UID);
-
                                                 DocumentReference documentReference = FirebaseFirestore.getInstance().collection("Files").document();
+                                                // Use the image URL as needed (e.g., save it to a database)
+                                                File file = new File(documentReference.getId(), URL, qrUrl, fileName, fileExtension, visibility, profile.getName(), timestamp, UID);
+                                                file.setStatus(editStatus.getText().toString());
+
 
                                                 documentReference.set(file, SetOptions.merge()).addOnCompleteListener(dbTask -> {
                                                     loading.setVisibility(View.GONE);
                                                     if (dbTask.isSuccessful()) {
                                                         Toast.makeText(UserProfile.this, "File Uploaded", Toast.LENGTH_SHORT).show();
                                                         finish();
-//                                                        Fragment selectedFragment = new PrivateRepoFragment();
-//                                                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-//                                                                selectedFragment).commit();
                                                     } else {
                                                         Toast.makeText(UserProfile.this, dbTask.getException().getMessage(), Toast.LENGTH_LONG).show();
                                                         Log.d(TAG, dbTask.getException().getMessage());

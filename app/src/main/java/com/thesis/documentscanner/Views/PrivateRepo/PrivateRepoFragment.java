@@ -138,17 +138,6 @@ public class PrivateRepoFragment extends Fragment {
                             if(!files.contains(file)) {
                                 files.add(file);
                             }
-
-//                            if(adapter != null) {
-//                                int existingIndex = files.indexOf(file);
-//                                if (existingIndex == -1) {
-//                                    existingIndex = files.size();
-//                                    files.add(existingIndex, file);
-//                                    adapter.notifyItemInserted(existingIndex);
-//                                } else {
-//                                    adapter.notifyItemChanged(existingIndex);
-//                                }
-//                            }
                         }
 
                         Context context = getActivity();

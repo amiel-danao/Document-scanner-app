@@ -8,3 +8,6 @@ Save qr as image
 CAVSU naic
 Blue theme
 Logo will be provided
+
+
+status edit

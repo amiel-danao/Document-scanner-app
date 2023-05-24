@@ -27,11 +27,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.thesis.documentscanner.Models.File;
 import com.thesis.documentscanner.R;
 
@@ -39,6 +44,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class QRScannerFragment extends Fragment implements SurfaceHolder.Callback{
 
@@ -47,7 +58,7 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
     private CameraSource cameraSource;
     private ActivityResultLauncher<String> cameraPermissionLauncher;
     private View previewForm;
-    private TextView txtUrl, txtFileName, txtFileExtension, txtVisibility, txtTimeStamp, txtUID, txtSender;
+    private TextView txtUrl, txtFileName, txtFileExtension, txtVisibility, txtTimeStamp, txtUID, txtSender, txtStatus;
     private ImageButton downloadButton;
     private File scannedFile;
 
@@ -64,6 +75,7 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
         txtTimeStamp = view.findViewById(R.id.txtTimeStamp);
         txtUID = view.findViewById(R.id.txtUID);
         txtSender = view.findViewById(R.id.txtSender);
+        txtStatus = view.findViewById(R.id.txtStatus);
         ImageButton clearQRButton = view.findViewById(R.id.clearQRButton);
 
         clearQRButton.setOnClickListener(new View.OnClickListener() {
@@ -77,6 +89,7 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
                 txtTimeStamp.setText("");
                 txtUID.setText("");
                 txtSender.setText("");
+                txtStatus.setText("");
             }
         });
         downloadButton = view.findViewById(R.id.downloadButton);
@@ -162,30 +175,50 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
 
                     previewForm.setVisibility(View.VISIBLE);
                     downloadButton.setVisibility(View.VISIBLE);
-                    try {
+                    Query query = FirebaseFirestore.getInstance().collection("Files").whereEqualTo("fileurl", qrCodeText);
+
+                    query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if(task.isSuccessful()){
+                                if(task.getResult().isEmpty()){
+                                    Toast.makeText(requireContext(), "No data for the qr url", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                                scannedFile = task.getResult().getDocuments().get(0).toObject(File.class);
+//                                txtUrl.setText(qrCodeText);
+                                txtFileName.setText("File name: "+ scannedFile.getName());
+                                txtFileExtension.setText("File type: "+ scannedFile.getFileType());
+                                txtStatus.setText("Status: "+ scannedFile.getStatus());
+                                txtVisibility.setText("Visibility: "+ scannedFile.getVisibility());
+                                Timestamp timestamp = scannedFile.getDateUploaded();
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+// Format the date into a string
+                                String dateTimeString = dateFormat.format(timestamp.toDate());
+                                txtTimeStamp.setText("Date uploaded: "+ dateTimeString);
+                                txtSender.setText("Sender: "+ scannedFile.getSender());
+                                txtUID.setText("UID: "+ scannedFile.getUserId());
+                            }
+                            else{
+                                Toast.makeText(requireContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
                         // Parse the JSON string
-                        JSONObject jsonObject = new JSONObject(qrCodeText);
+//                        JSONObject jsonObject = new JSONObject(qrCodeText);
+//
+//                        // Extract values from the JSON object
+//                        String url = jsonObject.getString("url");
+//                        String name = jsonObject.getString("fileName");
+//                        String fileType = jsonObject.getString("fileExtension");
+//                        String visibility = jsonObject.getString("visibility");
+//                        String timeStamp = jsonObject.getString("timestamp");
+//                        String sender = jsonObject.getString("sender");
+//                        String uid = jsonObject.getString("uid");
+//                        scannedFile = new File(url, "", name, fileType, visibility, sender, Timestamp.now(), uid);
+//
 
-                        // Extract values from the JSON object
-                        String url = jsonObject.getString("url");
-                        String name = jsonObject.getString("fileName");
-                        String fileType = jsonObject.getString("fileExtension");
-                        String visibility = jsonObject.getString("visibility");
-                        String timeStamp = jsonObject.getString("timestamp");
-                        String sender = jsonObject.getString("sender");
-                        String uid = jsonObject.getString("uid");
-                        scannedFile = new File(url, "", name, fileType, visibility, sender, Timestamp.now(), uid);
-                        txtUrl.setText(url);
-                        txtFileName.setText("File name: "+name);
-                        txtFileExtension.setText("File type: "+fileType);
-                        txtVisibility.setText("Visibility: "+visibility);
-                        txtTimeStamp.setText("Timestamp: "+timeStamp);
-                        txtSender.setText("Sender: "+sender);
-                        txtUID.setText("UID: "+uid);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
 
 //                    cameraSource.stop();
 //                    requireActivity().runOnUiThread(new Runnable() {

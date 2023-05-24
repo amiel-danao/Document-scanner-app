@@ -59,6 +59,13 @@
             android:layout_height="wrap_content"
             android:text="New folder"
             android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New folder"
+            android:textSize="12sp" />
     </LinearLayout>
 
     <ImageView

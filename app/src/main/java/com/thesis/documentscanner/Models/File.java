@@ -3,9 +3,11 @@ package com.thesis.documentscanner.Models;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.Timestamp;
+import com.thesis.documentscanner.util.Status;
 
 public class File {
 
+    private String docId;
     private String fileurl;
     private String qrUrl;
     private String name;
@@ -13,12 +15,14 @@ public class File {
     private String visibility;
     private String sender;
     private Timestamp dateUploaded;
+    private String status = Status.PENDING.name();
 
     public File(){
 
     }
 
-    public File(String fileurl, String qrUrl, String name, String fileType, String visibility, String sender, Timestamp dateUploaded, String userId) {
+    public File(String docId, String fileurl, String qrUrl, String name, String fileType, String visibility, String sender, Timestamp dateUploaded, String userId) {
+        this.docId = docId;
         this.fileurl = fileurl;
         this.qrUrl = qrUrl;
         this.name = name;
@@ -27,6 +31,22 @@ public class File {
         this.sender = sender;
         this.dateUploaded = dateUploaded;
         UserId = userId;
+    }
+
+    public String getDocId() {
+        return docId;
+    }
+
+    public void setDocId(String docId) {
+        this.docId = docId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getVisibility() {

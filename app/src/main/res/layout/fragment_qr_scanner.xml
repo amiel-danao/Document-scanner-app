@@ -42,7 +42,8 @@
                 android:layout_marginBottom="10dp"
                 android:ellipsize="end"
                 android:maxLines="3"
-                android:textIsSelectable="true" />
+                android:textIsSelectable="true"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/txtFileName"
@@ -54,6 +55,13 @@
 
             <TextView
                 android:id="@+id/txtFileExtension"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:textIsSelectable="true" />
+
+            <TextView
+                android:id="@+id/txtStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
@@ -74,18 +82,20 @@
                 android:textIsSelectable="true" />
 
             <TextView
-                android:id="@+id/txtUID"
+                android:id="@+id/txtSender"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:textIsSelectable="true" />
 
             <TextView
-                android:id="@+id/txtSender"
+                android:id="@+id/txtUID"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:textIsSelectable="true" />
+
+
 
         </LinearLayout>
     </ScrollView>

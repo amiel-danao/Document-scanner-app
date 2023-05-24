@@ -97,7 +97,7 @@ public class Home extends AppCompatActivity {
 
 
     // Fragment switching
-    private BottomNavigationView.OnNavigationItemSelectedListener navListner =
+    private final BottomNavigationView.OnNavigationItemSelectedListener navListner =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {

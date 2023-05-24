@@ -2,12 +2,16 @@ package com.thesis.documentscanner.Views.PrivateRepo;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,13 +23,22 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.thesis.documentscanner.Models.File;
 import com.thesis.documentscanner.R;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import android.app.DownloadManager;
 
@@ -59,6 +72,7 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
         fileViewHolder.fileType.setText("Type: "+ file.getFileType());
         fileViewHolder.visibility.setText(file.getVisibility());
         fileViewHolder.sender.setText("Sender: "+ file.getSender());
+        fileViewHolder.status.setText("Status: "+ file.getStatus());
 
         Date localDateTime = file.getDateUploaded().toDate();
 
@@ -72,7 +86,27 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
 
         fileViewHolder.downloadButton.setTag(file);
         fileViewHolder.downloadButton.setOnClickListener(downloadClickListener);
+
+
     }
+
+    final View.OnClickListener downloadQRClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            File file = (File)view.getTag();
+            Toast.makeText(mContext, "QR is downloading", Toast.LENGTH_SHORT).show();
+            DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(file.getQrUrl()));
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            request.setTitle("QR Download");
+            request.setDescription("Downloading qr file...");
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, file.getName() + ".jpg");
+
+            if (downloadManager != null) {
+                downloadManager.enqueue(request);
+            }
+        }
+    };
 
     final View.OnClickListener downloadClickListener = new View.OnClickListener() {
         @Override
@@ -103,10 +137,51 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
             ImageView imageViewEnlarged = dialogView.findViewById(R.id.image_enlarged);
             TextView folder_name = dialogView.findViewById(R.id.folder_name);
             ImageView downloadIcon = dialogView.findViewById(R.id.downloadIcon);
+            ImageButton downloadQRButton = dialogView.findViewById(R.id.btnDownloadQR);
+
+            View statusLayout = dialogView.findViewById(R.id.statusLayout);
+            if(file.getUserId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                statusLayout.setVisibility(View.VISIBLE);
+                EditText editStatus = dialogView.findViewById(R.id.editStatus);
+
+                ImageButton btnSaveStatus = dialogView.findViewById(R.id.btnSaveStatus);
+                btnSaveStatus.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(editStatus.getText().toString().isEmpty()){
+                            Toast.makeText(mContext, "Please input a status", Toast.LENGTH_SHORT).show();
+                            editStatus.setError("Please input a status");
+                            return;
+                        }
+
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("status", editStatus.getText().toString());
+                        FirebaseFirestore.getInstance().collection("Files").document(file.getDocId())
+                            .set(data, SetOptions.merge())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()){
+                                        Toast.makeText(mContext, "Status was updated successfully", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else{
+                                        Toast.makeText(mContext, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                    }
+                });
+            }
+            else{
+                statusLayout.setVisibility(View.GONE);
+            }
 
             folder_name.setText(file.getName());
             downloadIcon.setTag(file);
             downloadIcon.setOnClickListener(downloadClickListener);
+
+            downloadQRButton.setTag(file);
+            downloadQRButton.setOnClickListener(downloadQRClickListener);
 
             // Load the image using Glide into the enlarged ImageView
             Glide.with(mContext)
@@ -145,7 +220,7 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
     }
 
     public static class FileViewHolder extends RecyclerView.ViewHolder {
-        TextView fileName, fileType, visibility, sender, dateUpload;
+        TextView fileName, fileType, visibility, sender, dateUpload, status;
         ImageView qrImageView;
         LinearLayout parentLayout;
         View downloadButton;
@@ -161,6 +236,8 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
             parentLayout = itemView.findViewById(R.id.private_repo_item_layout);
             qrImageView = itemView.findViewById(R.id.idIVQrcode);
             downloadButton = itemView.findViewById(R.id.downloadIcon);
+            status = itemView.findViewById(R.id.status);
+
         }
     }
 
