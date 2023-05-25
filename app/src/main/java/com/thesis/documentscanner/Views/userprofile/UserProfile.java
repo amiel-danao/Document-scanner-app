@@ -218,6 +218,7 @@ public class UserProfile extends AppCompatActivity {
 
         if(editStatus.getText().toString().isEmpty()){
             editStatus.setError("This field is required");
+            return false;
         }
         return true;
     }
