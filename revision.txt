@@ -1,0 +1,8 @@
+Attach QR to file, upper right
+Edit search bar name
+App Icon provided
+Add icon labels
+add deactivate/delete account admin only
+logs for every user type
+CVSU Color Scheme
+change Font 

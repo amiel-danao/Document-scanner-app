@@ -7,4 +7,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!-- styles.xml -->
+    <style name="CustomPositiveButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:textColor">@color/custom_positive_button_text_color</item>
+    </style>
+
 </resources>

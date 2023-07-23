@@ -1,6 +1,9 @@
 package com.thesis.documentscanner.Views.userprofile;
 
+import static com.thesis.documentscanner.util.AddImageInExcel.attachImageToExcel;
+
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -8,20 +11,28 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.Timestamp;
@@ -29,6 +40,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.thesis.documentscanner.FirebaseStorageHelper;
@@ -38,21 +50,26 @@ import com.thesis.documentscanner.Models.File;
 import com.thesis.documentscanner.QRGenerator;
 import com.thesis.documentscanner.R;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 
 public class UserProfile extends AppCompatActivity {
+    private static final int PERMISSION_REQUEST_CODE = 69;
     private String UID;
     private FirebaseAuth auth;
 
     private static final String  TAG = "UserProfileActivity";
     private View loading;
     private ActivityResultLauncher<Intent> filePickerLauncher;
-    private ActivityResultLauncher<String> permissionLauncher;
-    private ActivityResultLauncher<Intent> appSettingsLauncher;
+    private ActivityResultLauncher<String[]> permissionsLauncher;
     private final String[] allowedFileExtensions = {"text/csv", "text/comma-separated-values", "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             "application/vnd.ms-powerpoint", "application/vnd.ms-excel",
@@ -69,6 +86,9 @@ public class UserProfile extends AppCompatActivity {
     private SwitchCompat visibilitySwitch;
     private TextView fileTypeEdit;
     private EditText editStatus;
+    AlertDialog alertDialog;
+    private ArrayList<String> permissionsList;
+    private String[] permissionsStr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,23 +113,12 @@ public class UserProfile extends AppCompatActivity {
         visibilitySwitch = findViewById(R.id.visibilitySwitch);
         editStatus = findViewById(R.id.editStatus);
 
-        setupFilePicker();
         setupPermissionLauncher();
+        setupFilePicker();
 
         dialog = new AlertDialog.Builder(this);
         String currentDateTimeString = simpleDateTimeFormat.format(new Date());
         dateEdit.setText(currentDateTimeString);
-
-        fab.setOnClickListener(view -> {
-            if(isFormValid()) {
-                loading.setVisibility(View.VISIBLE);
-                requestStoragePermission();
-            }
-            else{
-                dialog.setTitle("Invalid").setMessage("Invalid form data, please fill up required fields!")
-                        .show();
-            }
-        });
 
         visibilitySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -136,78 +145,152 @@ public class UserProfile extends AppCompatActivity {
             }
         });
 
-        appSettingsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    // Check if the user has returned from app settings
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        // Permission granted, proceed with file picking
-                        if (filePickerLauncher != null) {
-                            pickFile();
-                        }
-                    } else {
-                        // Permission still denied, handle accordingly
-                        // You may display a message or take appropriate action
-                        showCancelledMessage();
-                    }
-                }
-            });
+        permissionsStr = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.MANAGE_EXTERNAL_STORAGE};
+
+        permissionsList = new ArrayList<>();
+        permissionsList.addAll(Arrays.asList(permissionsStr));
+
+        fab.setOnClickListener(view -> {
+            if(isFormValid()) {
+                loading.setVisibility(View.VISIBLE);
+                pickFile();
+            }
+            else{
+                dialog.setTitle("Invalid").setMessage("Invalid form data, please fill up required fields!")
+                        .show();
+            }
+        });
     }
 
     private void setupPermissionLauncher() {
-        permissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(),
-            isGranted -> {
-                if (isGranted) {
-                    // Permission granted, proceed with file picking
-                    if (filePickerLauncher != null) {
-                        pickFile();
-                    }
-                } else {
-                    // Permission denied, handle accordingly
-                    // You may display a message or take appropriate action
-                    showPermissionDeniedDialog();
+//        permissionsLauncher =
+//            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(),
+//                result -> {
+//                    ArrayList<Boolean> list = new ArrayList<>(result.values());
+//                    permissionsList = new ArrayList<>();
+//                    int permissionsCount = 0;
+//                    for (int i = 0; i < list.size(); i++) {
+//                        if (shouldShowRequestPermissionRationale(permissionsStr[i])) {
+//                            permissionsList.add(permissionsStr[i]);
+//                        }else if (!hasPermission(UserProfile.this, permissionsStr[i])){
+//                            permissionsCount++;
+//                        }
+//                    }
+//                    if (permissionsList.size() > 0) {
+//                        //Some permissions are denied and can be asked again.
+//                        askForPermissions();
+//                    } else if (permissionsCount > 0) {
+//                        //Show alert dialog
+//                        showPermissionDialog();
+//                    } else {
+//                        //All permissions granted. Do your stuff 🤞
+//                        pickFile();
+//                    }
+//                });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {// If request is cancelled, the result arrays are empty.
+            List<String> deniedPermissions = new ArrayList<>(grantResults.length);
+            for (int i=0; i< grantResults.length; i++){
+                if(grantResults[i] == PackageManager.PERMISSION_DENIED){
+                    deniedPermissions.add(permissionsStr[i]);
                 }
-            });
-    }
+            }
 
-    private void requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            // Permission already granted, proceed with file picking
-            pickFile();
-        } else {
-            // Permission not granted, request it
-            permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+            if(deniedPermissions.isEmpty()){
+                pickFile();
+            }
+            else{
+                showPermissionDialog();
+            }
+
+            loading.setVisibility(View.GONE);
         }
+        // Other 'case' lines to check for other
+        // permissions this app might request.
     }
 
-    private void showPermissionDeniedDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Permission Denied")
-            .setMessage("This permission is required to access files. Please grant the permission in the app settings.")
-            .setPositiveButton("Go to Settings", (dialog, which) -> {
-                // Open app settings
-                openAppSettings();
-            })
-            .setNegativeButton("Cancel", (dialog, which) -> {
-                // Permission denied, handle accordingly
-                showCancelledMessage();
-            })
-            .setCancelable(false)
-            .show();
+
+    private boolean hasPermission(Context context, String permissionStr) {
+        return ContextCompat.checkSelfPermission(context, permissionStr) == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void showCancelledMessage(){
-        // You may display a message or take appropriate action
-        AlertDialog.Builder cancelledDialog = new AlertDialog.Builder(this);
-        cancelledDialog.setTitle("Permission Denied").setMessage("In order to use the upload functionality you need to allow storage permission \n You can do it in the app settings")
-        .show();
+    private boolean isAllPermissionGranted(){
+        int grantedPermissions = 0;
+
+        for (String s : permissionsStr) {
+            if (ContextCompat.checkSelfPermission(
+                    this, s) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                // You can use the API that requires the permission.
+                grantedPermissions++;
+            } else if (shouldShowRequestPermissionRationale(s)) {
+                // In an educational UI, explain to the user why your app requires this
+                // permission for a specific feature to behave as expected, and what
+                // features are disabled if it's declined. In this UI, include a
+                // "cancel" or "no thanks" button that lets the user continue
+                // using your app without granting the permission.
+                showPermissionDialog();
+            }
+        }
+
+        return grantedPermissions == permissionsStr.length;
     }
 
-    private void openAppSettings() {
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", getPackageName(), null);
-        intent.setData(uri);
-        appSettingsLauncher.launch(intent);
+    private void askForPermissions() {
+
+
+        if(isAllPermissionGranted()){
+            pickFile();
+        }else {
+            // You can directly ask for the permission.
+            requestPermissions(permissionsStr, PERMISSION_REQUEST_CODE);
+        }
+
+//        String[] newPermissionStr = new String[permissionsList.size()];
+//        for (int i = 0; i < newPermissionStr.length; i++) {
+//            newPermissionStr[i] = permissionsList.get(i);
+//        }
+//        if (newPermissionStr.length > 0) {
+//            permissionsLauncher.launch(newPermissionStr);
+//        } else {
+//        /* User has pressed 'Deny & Don't ask again' so we have to show the enable permissions dialog
+//        which will lead them to app details page to enable permissions from there. */
+//            showPermissionDialog();
+//        }
+    }
+    private void showPermissionDialog() {
+
+        if (alertDialog == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            LayoutInflater inflater = getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.custom_dialog, null);
+            builder.setView(dialogView);
+
+            Button btnPositive = dialogView.findViewById(R.id.btn_positive);
+            btnPositive.setText("Settings");
+            btnPositive.setOnClickListener(v -> {
+                alertDialog.dismiss();
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                intent.setData(uri);
+                startActivity(intent);
+            });
+
+            builder.setTitle("Permission required")
+                    .setMessage("Some permissions are need to be allowed to use this app without any problems.");
+            alertDialog = builder.create();
+        }
+
+        if (!alertDialog.isShowing()) {
+            alertDialog.show();
+        }
     }
 
     private boolean isFormValid(){
@@ -260,8 +343,9 @@ public class UserProfile extends AppCompatActivity {
                                     downloadUrlTask.addOnFailureListener(e -> loading.setVisibility(View.GONE));
 
                                     downloadUrlTask.addOnSuccessListener(uriTask -> {
+
                                         String URL = String.valueOf(uriTask);
-                                        Date parsedDate = new Date();
+                                        Date parsedDate;
 
                                         try {
                                             // Parse the date-time string
@@ -277,6 +361,36 @@ public class UserProfile extends AppCompatActivity {
 
 
                                         Bitmap qrBitmap = QRGenerator.generateQRCode(URL);
+
+                                        String tempFileName = String.format("temp.%s", fileExtension); // Replace this with the desired file name.
+                                        java.io.File internalFile = new java.io.File(getFilesDir(), tempFileName);
+
+                                        try {
+                                            internalFile.createNewFile();
+
+                                            fileRef.getFile(internalFile).addOnSuccessListener(taskSnapshot1 -> {
+                                                // File download success
+                                                java.io.File modifiedFile = attachImageToExcel(getApplicationContext(), new java.io.File(internalFile.getPath()), qrBitmap);
+                                                Uri modifiedUri = Uri.fromFile(modifiedFile);
+
+                                                StorageReference existingStorageReference = FirebaseStorage.getInstance().getReferenceFromUrl(URL);
+
+                                                existingStorageReference.putFile(modifiedUri).addOnSuccessListener(taskSnapshot2 -> {
+                                                    Toast.makeText(UserProfile.this, "QR was placed successfully", Toast.LENGTH_SHORT).show();
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    Toast.makeText(UserProfile.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                                });
+                                            }).addOnFailureListener(e -> {
+                                                // File download failed
+                                                Toast.makeText(UserProfile.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                            });
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                        }
+
+                                        assert(qrBitmap != null);
 
                                         FirebaseStorageHelper.uploadBitmapToFirebaseStorage(qrBitmap, fileName, folder, storageTask -> {
                                             if(storageTask.isSuccessful()){
