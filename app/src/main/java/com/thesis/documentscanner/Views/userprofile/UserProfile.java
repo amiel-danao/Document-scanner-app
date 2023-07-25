@@ -1,17 +1,19 @@
 package com.thesis.documentscanner.Views.userprofile;
 
 import static com.thesis.documentscanner.util.AddImageInExcel.attachImageToExcel;
+import static com.thesis.documentscanner.util.AddImageToDocx.addImageToDocx;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -21,18 +23,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.Timestamp;
@@ -40,7 +37,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.thesis.documentscanner.FirebaseStorageHelper;
@@ -58,7 +54,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 
 public class UserProfile extends AppCompatActivity {
@@ -122,8 +117,8 @@ public class UserProfile extends AppCompatActivity {
 
         visibilitySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b){
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked){
                     visibilitySwitch.setText("Visibility: Public");
                 }
                 else{
@@ -326,6 +321,18 @@ public class UserProfile extends AppCompatActivity {
                             }
 
                             if (isValidFileType) {
+                                try(Cursor returnCursor =
+                                        getContentResolver().query(fileUri, null, null, null, null)) {
+                                    int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                                    returnCursor.moveToFirst();
+                                    int fileSize = (int) returnCursor.getLong(sizeIndex);
+
+                                    if (fileSize <= 0) {
+                                        Toast.makeText(this, "Empty file is not allowed!", Toast.LENGTH_LONG).show();
+                                        loading.setVisibility(View.GONE);
+                                        return;
+                                    }
+                                }
                                 // File is valid, proceed with handling it
                                 // Handle the selected file URI here
                                 String fileName = fileNameEdit.getText().toString();
@@ -369,18 +376,27 @@ public class UserProfile extends AppCompatActivity {
                                             internalFile.createNewFile();
 
                                             fileRef.getFile(internalFile).addOnSuccessListener(taskSnapshot1 -> {
+                                                assert qrBitmap != null;
                                                 // File download success
-                                                java.io.File modifiedFile = attachImageToExcel(getApplicationContext(), new java.io.File(internalFile.getPath()), qrBitmap);
-                                                Uri modifiedUri = Uri.fromFile(modifiedFile);
+                                                java.io.File modifiedFile = null;
+                                                if(fileExtension.equals("xls") || fileExtension.equals("xlsx"))
+                                                    modifiedFile = attachImageToExcel(getApplicationContext(), new java.io.File(internalFile.getPath()), qrBitmap);
+                                                else if (fileExtension.equals("doc") || fileExtension.equals("docx")) {
+                                                    modifiedFile = addImageToDocx(getApplicationContext(), internalFile, qrBitmap);
+                                                }
 
-                                                StorageReference existingStorageReference = FirebaseStorage.getInstance().getReferenceFromUrl(URL);
+                                                if(modifiedFile != null) {
+                                                    Uri modifiedUri = Uri.fromFile(modifiedFile);
 
-                                                existingStorageReference.putFile(modifiedUri).addOnSuccessListener(taskSnapshot2 -> {
-                                                    Toast.makeText(UserProfile.this, "QR was placed successfully", Toast.LENGTH_SHORT).show();
-                                                })
-                                                .addOnFailureListener(e -> {
-                                                    Toast.makeText(UserProfile.this, e.getMessage(), Toast.LENGTH_LONG).show();
-                                                });
+                                                    StorageReference existingStorageReference = FirebaseStorage.getInstance().getReferenceFromUrl(URL);
+
+                                                    existingStorageReference.putFile(modifiedUri).addOnSuccessListener(taskSnapshot2 -> {
+                                                                Toast.makeText(UserProfile.this, "QR was placed successfully", Toast.LENGTH_SHORT).show();
+                                                            })
+                                                            .addOnFailureListener(e -> {
+                                                                Toast.makeText(UserProfile.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                                            });
+                                                }
                                             }).addOnFailureListener(e -> {
                                                 // File download failed
                                                 Toast.makeText(UserProfile.this, e.getMessage(), Toast.LENGTH_LONG).show();

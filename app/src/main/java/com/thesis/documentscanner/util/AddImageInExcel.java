@@ -7,7 +7,6 @@ import android.widget.Toast;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Picture;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -28,6 +27,7 @@ import java.io.InputStream;
  */
 public class AddImageInExcel {
 
+    private static final int CREATE_FILE = 1;
     /**
      * This Method loads the image from application resource and insert into the
      * Cell
