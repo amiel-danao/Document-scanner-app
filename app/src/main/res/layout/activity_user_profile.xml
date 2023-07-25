@@ -60,6 +60,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="20dp"
+                    android:fontFamily="@font/abeezee"
                     android:text="Upload new Document"
                     android:textAlignment="center"
                     android:textSize="24sp"
@@ -71,6 +72,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:ems="10"
+                    android:fontFamily="@font/abeezee"
                     android:hint="File Name"
                     android:inputType="textPersonName"
                     android:paddingStart="10dp" />
@@ -92,6 +94,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight=".3"
+                        android:fontFamily="@font/abeezee"
                         android:text="Status:"
                         android:textAlignment="textStart"
                         android:textStyle="bold" />
@@ -111,6 +114,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/abeezee"
                     android:paddingStart="10dp"
                     android:text="Date uploaded: "
                     android:textSize="16sp" />
@@ -121,6 +125,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:checked="true"
+                    android:fontFamily="@font/abeezee"
                     android:paddingStart="10dp"
                     android:text="Visibility: Public"
                     android:textOff="Private"
@@ -139,6 +144,7 @@
         android:layout_margin="@dimen/fab_margin"
         android:layout_weight=".15"
         android:contentDescription="@string/fileUp"
+        app:backgroundTint="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="@+id/include"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_menu_upload"

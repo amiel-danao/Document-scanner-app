@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 public class HomeFragment extends Fragment {
     private TextView txtWelcome;
@@ -150,4 +149,13 @@ public class HomeFragment extends Fragment {
         return calendar.getTimeInMillis() - timeZoneOffset;
     }
 
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Set the title for the ActionBar (AppCompatActivity)
+        String customTitle = "Home";
+        requireActivity().setTitle(customTitle);
+    }
 }

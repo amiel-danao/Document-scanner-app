@@ -6,11 +6,11 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import androidx.appcompat.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
@@ -18,8 +18,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.thesis.documentscanner.Models.Employee;
-import com.thesis.documentscanner.Views.Home.HomeFragment;
 import com.thesis.documentscanner.Views.Home.AccountsFragment;
+import com.thesis.documentscanner.Views.Home.HomeFragment;
 import com.thesis.documentscanner.Views.PrivateRepo.PrivateRepoFragment;
 import com.thesis.documentscanner.Views.QRScannerFragment;
 import com.thesis.documentscanner.Views.userprofile.UserProfile;
@@ -39,6 +39,7 @@ public class Home extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         toolbar = findViewById(R.id.main_toolbar);
+
         setSupportActionBar(toolbar);
         fAuth = FirebaseAuth.getInstance();
 
@@ -47,6 +48,7 @@ public class Home extends AppCompatActivity {
         selectedFragment = new HomeFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 selectedFragment).commit();
+
 
 
         FirebaseFirestore.getInstance().collection("Users").document(fAuth.getCurrentUser().getUid())

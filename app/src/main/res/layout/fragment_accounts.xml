@@ -33,6 +33,7 @@
                 android:layout_below="@+id/textView1"
                 android:layout_weight=".1"
                 android:background="#FFFFFF"
+                android:fontFamily="@font/abeezee"
                 android:gravity="center"
                 android:text="Accounts"
                 android:textColor="#050B30"
@@ -56,6 +57,7 @@
                 android:layout_gravity="bottom|end"
                 android:layout_margin="@dimen/fab_margin"
                 android:contentDescription="@string/fileUp"
+                app:backgroundTint="@color/colorPrimaryDark"
                 app:fabCustomSize="60dp"
                 app:layout_constraintBottom_toBottomOf="@+id/include"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -69,15 +71,15 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight=".5"
-            android:background="@color/zxing_custom_viewfinder_laser"
-            android:backgroundTint="@color/zxing_custom_viewfinder_laser"
+            android:background="@color/colorPrimary"
+            android:backgroundTint="@color/colorPrimaryDark"
             android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/zxing_custom_viewfinder_laser"
-                android:backgroundTint="@color/zxing_custom_viewfinder_laser"
+                android:background="@color/colorPrimary"
+                android:backgroundTint="@color/colorPrimary"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -93,6 +95,7 @@
                     android:id="@+id/textView4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fontFamily="@font/abeezee"
                     android:gravity="center"
                     android:text="New Account"
                     android:textColor="@android:color/white"
@@ -107,8 +110,9 @@
                     android:background="#FFFFFF"
                     android:drawableLeft="@android:drawable/sym_action_email"
 
-                    android:gravity="center"
+                    android:fontFamily="@font/abeezee"
 
+                    android:gravity="center"
                     android:hint="email"
                     android:inputType="textWebEmailAddress"
                     android:textColor="@color/design_default_color_on_secondary"
@@ -121,6 +125,7 @@
                     android:layout_marginTop="5dp"
                     android:background="#FFFFFF"
                     android:drawableLeft="@drawable/ic_baseline_account_box_24"
+                    android:fontFamily="@font/abeezee"
                     android:gravity="center"
                     android:hint="Employee Name"
                     android:inputType="textPersonName"
@@ -195,8 +200,9 @@
                     android:id="@+id/createAccountButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@color/colorAccent"
-                    android:text="Create Account" />
+                    android:backgroundTint="@color/blue"
+                    android:text="Create Account"
+                    app:icon="@drawable/baseline_add_box_24" />
 
             </LinearLayout>
         </ScrollView>

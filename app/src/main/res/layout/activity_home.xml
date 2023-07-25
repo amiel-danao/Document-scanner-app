@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/colorAccent"
+        android:background="@color/colorPrimary"
         app:itemActiveIndicatorStyle="@style/AppTheme"
         app:itemIconTint="@color/design_default_color_on_secondary"
         app:itemTextColor="@color/design_default_color_on_secondary"

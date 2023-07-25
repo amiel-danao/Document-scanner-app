@@ -27,6 +27,7 @@
             android:id="@+id/folder_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/abeezee"
             android:text="New folder"
             android:textColor="#000"
             android:textFontWeight="100"
@@ -36,6 +37,7 @@
             android:id="@+id/fileType"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/abeezee"
             android:text="New folder"
             android:textSize="14sp" />
 
@@ -43,6 +45,7 @@
             android:id="@+id/visibility"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/abeezee"
             android:text="New folder"
             android:textSize="14sp" />
 
@@ -50,6 +53,7 @@
             android:id="@+id/sender"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/abeezee"
             android:text="New folder"
             android:textSize="14sp" />
 
@@ -57,6 +61,7 @@
             android:id="@+id/dateUpload"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/abeezee"
             android:text="New folder"
             android:textSize="10sp" />
 
@@ -64,6 +69,7 @@
             android:id="@+id/status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/abeezee"
             android:text="New folder"
             android:textSize="12sp" />
     </LinearLayout>

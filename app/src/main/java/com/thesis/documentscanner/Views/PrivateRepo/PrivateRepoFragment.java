@@ -1,11 +1,11 @@
 package com.thesis.documentscanner.Views.PrivateRepo;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,6 +17,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -26,7 +27,6 @@ import com.thesis.documentscanner.MainActivity;
 import com.thesis.documentscanner.Models.Employee;
 import com.thesis.documentscanner.Models.File;
 import com.thesis.documentscanner.R;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
@@ -154,4 +154,12 @@ public class PrivateRepoFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Set the title for the ActionBar (AppCompatActivity)
+        String customTitle = "Search a file";
+        requireActivity().setTitle(customTitle);
+    }
 }

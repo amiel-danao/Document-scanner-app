@@ -6,9 +6,11 @@
         android:id="@+id/searchEdit"
         android:icon="@drawable/ic_search_black_24dp"
         android:title="Search"
-        android:visible="false"
+        android:titleCondensed="Search"
+        android:tooltipText="Search"
+        android:visible="true"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/uploadMenu"
         android:icon="@android:drawable/ic_menu_upload"

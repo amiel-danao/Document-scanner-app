@@ -1,8 +1,8 @@
-Attach QR to file, upper right
-Edit search bar name
-App Icon provided
-Add icon labels
+[ok]Attach QR to file, upper right
+[ok]Edit search bar name
+[ok]App Icon provided
+[ok]Add icon labels
 add deactivate/delete account admin only
 logs for every user type
-CVSU Color Scheme
-change Font 
+[ok]CVSU Color Scheme
+[ok]change Font 

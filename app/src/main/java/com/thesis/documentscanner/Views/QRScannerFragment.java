@@ -5,7 +5,6 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,6 +14,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,15 +40,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.thesis.documentscanner.Models.File;
 import com.thesis.documentscanner.R;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public class QRScannerFragment extends Fragment implements SurfaceHolder.Callback{
@@ -59,7 +52,7 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
     private ActivityResultLauncher<String> cameraPermissionLauncher;
     private View previewForm;
     private TextView txtUrl, txtFileName, txtFileExtension, txtVisibility, txtTimeStamp, txtUID, txtSender, txtStatus;
-    private ImageButton downloadButton;
+    private Button downloadButton;
     private File scannedFile;
 
 
@@ -102,6 +95,8 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
             }
         });
 
+
+
         downloadButton.setOnClickListener(view12 -> {
             if (scannedFile == null){
                 Toast.makeText(getContext(), "Please scan a valid qr first!", Toast.LENGTH_SHORT).show();
@@ -140,6 +135,9 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
         } else {
             setupQRScanner();
         }
+
+        String customTitle = "QR Scan";
+        requireActivity().setTitle(customTitle);
     }
 
     private void requestCameraPermission() {
@@ -274,4 +272,6 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
             cameraSource = null;
         }
     }
+
+
 }
