@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,8 +21,8 @@ import java.util.ArrayList;
 public class PublicFilesAdapter extends RecyclerView.Adapter<PublicFilesAdapter.ViewHolder>{
     private static final String TAG = "PrivateRepoAdapter";
 
-    private ArrayList<File> files;
-    private Context mContext;
+    private final ArrayList<File> files;
+    private final Context mContext;
 
 
     public PublicFilesAdapter(ArrayList<File> files, Context mContext) {
@@ -42,17 +41,14 @@ public class PublicFilesAdapter extends RecyclerView.Adapter<PublicFilesAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         File file = files.get(viewHolder.getBindingAdapterPosition());
-        ((PublicFilesAdapter.ViewHolder)viewHolder).username.setText(file.getName());
+        viewHolder.username.setText(file.getName());
 
-        ((PublicFilesAdapter.ViewHolder)viewHolder).parentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: clicked on: " + file.getName());
-                Toast.makeText(mContext, "File is opening", Toast.LENGTH_SHORT).show();
-                Intent implicit = new Intent(Intent.ACTION_VIEW, Uri.parse(file.getFileurl()));
-                implicit.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(implicit);
-            }
+        viewHolder.parentLayout.setOnClickListener(v -> {
+            Log.d(TAG, "onClick: clicked on: " + file.getName());
+            Toast.makeText(mContext, "File is opening", Toast.LENGTH_SHORT).show();
+            Intent implicit = new Intent(Intent.ACTION_VIEW, Uri.parse(file.getFileurl()));
+            implicit.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivity(implicit);
         });
     }
 

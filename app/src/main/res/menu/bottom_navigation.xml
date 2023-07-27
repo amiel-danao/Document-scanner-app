@@ -19,4 +19,9 @@
         android:icon="@drawable/ic_baseline_account_box_24"
         android:title="Accounts"
         android:visible="false" />
+    <item
+        android:id="@+id/logs_activity"
+        android:icon="@drawable/baseline_history_edu_24"
+        android:title="Logs"
+        android:visible="true" />
 </menu>

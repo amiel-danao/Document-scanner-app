@@ -1,5 +1,7 @@
 package com.thesis.documentscanner.Views;
 
+import static com.thesis.documentscanner.util.LogUtils.writeLog;
+
 import android.Manifest;
 import android.app.DownloadManager;
 import android.content.Context;
@@ -34,6 +36,7 @@ import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -54,6 +57,7 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
     private TextView txtUrl, txtFileName, txtFileExtension, txtVisibility, txtTimeStamp, txtUID, txtSender, txtStatus;
     private Button downloadButton;
     private File scannedFile;
+    private FirebaseAuth auth;
 
 
     @Override
@@ -71,6 +75,7 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
         txtStatus = view.findViewById(R.id.txtStatus);
         ImageButton clearQRButton = view.findViewById(R.id.clearQRButton);
 
+        auth = FirebaseAuth.getInstance();
         clearQRButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -107,10 +112,13 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                 request.setTitle("File Download");
                 request.setDescription("Downloading file...");
-                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, scannedFile.getName() + "." + scannedFile.getFileType());
+                String fullFileName = scannedFile.getName() + "." + scannedFile.getFileType();
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fullFileName);
 
                 if (downloadManager != null) {
                     downloadManager.enqueue(request);
+                    String logMessage = String.format("QR scanned: %s", fullFileName);
+                    writeLog(logMessage, auth.getCurrentUser().getUid());
                 }
             }
         });

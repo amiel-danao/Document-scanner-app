@@ -1,12 +1,11 @@
 package com.thesis.documentscanner.Views.userprofile;
 
+import static com.thesis.documentscanner.common.Constants.USERS_COLLECTION;
 import static com.thesis.documentscanner.util.AddImageInExcel.attachImageToExcel;
 import static com.thesis.documentscanner.util.AddImageToDocx.addImageToDocx;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -28,7 +27,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -37,6 +35,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.thesis.documentscanner.FirebaseStorageHelper;
@@ -52,7 +51,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 
@@ -108,7 +106,6 @@ public class UserProfile extends AppCompatActivity {
         visibilitySwitch = findViewById(R.id.visibilitySwitch);
         editStatus = findViewById(R.id.editStatus);
 
-        setupPermissionLauncher();
         setupFilePicker();
 
         dialog = new AlertDialog.Builder(this);
@@ -158,107 +155,6 @@ public class UserProfile extends AppCompatActivity {
         });
     }
 
-    private void setupPermissionLauncher() {
-//        permissionsLauncher =
-//            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(),
-//                result -> {
-//                    ArrayList<Boolean> list = new ArrayList<>(result.values());
-//                    permissionsList = new ArrayList<>();
-//                    int permissionsCount = 0;
-//                    for (int i = 0; i < list.size(); i++) {
-//                        if (shouldShowRequestPermissionRationale(permissionsStr[i])) {
-//                            permissionsList.add(permissionsStr[i]);
-//                        }else if (!hasPermission(UserProfile.this, permissionsStr[i])){
-//                            permissionsCount++;
-//                        }
-//                    }
-//                    if (permissionsList.size() > 0) {
-//                        //Some permissions are denied and can be asked again.
-//                        askForPermissions();
-//                    } else if (permissionsCount > 0) {
-//                        //Show alert dialog
-//                        showPermissionDialog();
-//                    } else {
-//                        //All permissions granted. Do your stuff 🤞
-//                        pickFile();
-//                    }
-//                });
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST_CODE) {// If request is cancelled, the result arrays are empty.
-            List<String> deniedPermissions = new ArrayList<>(grantResults.length);
-            for (int i=0; i< grantResults.length; i++){
-                if(grantResults[i] == PackageManager.PERMISSION_DENIED){
-                    deniedPermissions.add(permissionsStr[i]);
-                }
-            }
-
-            if(deniedPermissions.isEmpty()){
-                pickFile();
-            }
-            else{
-                showPermissionDialog();
-            }
-
-            loading.setVisibility(View.GONE);
-        }
-        // Other 'case' lines to check for other
-        // permissions this app might request.
-    }
-
-
-    private boolean hasPermission(Context context, String permissionStr) {
-        return ContextCompat.checkSelfPermission(context, permissionStr) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private boolean isAllPermissionGranted(){
-        int grantedPermissions = 0;
-
-        for (String s : permissionsStr) {
-            if (ContextCompat.checkSelfPermission(
-                    this, s) ==
-                    PackageManager.PERMISSION_GRANTED) {
-                // You can use the API that requires the permission.
-                grantedPermissions++;
-            } else if (shouldShowRequestPermissionRationale(s)) {
-                // In an educational UI, explain to the user why your app requires this
-                // permission for a specific feature to behave as expected, and what
-                // features are disabled if it's declined. In this UI, include a
-                // "cancel" or "no thanks" button that lets the user continue
-                // using your app without granting the permission.
-                showPermissionDialog();
-            }
-        }
-
-        return grantedPermissions == permissionsStr.length;
-    }
-
-    private void askForPermissions() {
-
-
-        if(isAllPermissionGranted()){
-            pickFile();
-        }else {
-            // You can directly ask for the permission.
-            requestPermissions(permissionsStr, PERMISSION_REQUEST_CODE);
-        }
-
-//        String[] newPermissionStr = new String[permissionsList.size()];
-//        for (int i = 0; i < newPermissionStr.length; i++) {
-//            newPermissionStr[i] = permissionsList.get(i);
-//        }
-//        if (newPermissionStr.length > 0) {
-//            permissionsLauncher.launch(newPermissionStr);
-//        } else {
-//        /* User has pressed 'Deny & Don't ask again' so we have to show the enable permissions dialog
-//        which will lead them to app details page to enable permissions from there. */
-//            showPermissionDialog();
-//        }
-    }
     private void showPermissionDialog() {
 
         if (alertDialog == null) {
@@ -366,7 +262,6 @@ public class UserProfile extends AppCompatActivity {
 
                                         String visibility = visibilitySwitch.isChecked()? "public" : "private";
 
-
                                         Bitmap qrBitmap = QRGenerator.generateQRCode(URL);
 
                                         String tempFileName = String.format("temp.%s", fileExtension); // Replace this with the desired file name.
@@ -409,30 +304,67 @@ public class UserProfile extends AppCompatActivity {
                                         assert(qrBitmap != null);
 
                                         FirebaseStorageHelper.uploadBitmapToFirebaseStorage(qrBitmap, fileName, folder, storageTask -> {
-                                            if(storageTask.isSuccessful()){
+                                            if (storageTask.isSuccessful()) {
                                                 Uri downloadUri = storageTask.getResult();
                                                 String qrUrl = downloadUri.toString();
                                                 DocumentReference documentReference = FirebaseFirestore.getInstance().collection("Files").document();
+
+                                                // Create a WriteBatch instance
+                                                WriteBatch batch = FirebaseFirestore.getInstance().batch();
                                                 // Use the image URL as needed (e.g., save it to a database)
                                                 File file = new File(documentReference.getId(), URL, qrUrl, fileName, fileExtension, visibility, profile.getName(), timestamp, UID);
                                                 file.setStatus(editStatus.getText().toString());
 
+                                                DocumentReference currentUserRef = FirebaseFirestore.getInstance().collection(USERS_COLLECTION).document(auth.getCurrentUser().getUid());
+                                                String logMessage = String.format("File uploaded: %s.%s", fileName, fileExtension);
+                                                com.thesis.documentscanner.Models.Log log = new com.thesis.documentscanner.Models.Log(new Date(), currentUserRef, logMessage);
 
-                                                documentReference.set(file, SetOptions.merge()).addOnCompleteListener(dbTask -> {
+                                                DocumentReference newLogReference = FirebaseFirestore.getInstance().collection("Logs").document();
+                                                // Add the document to the batch
+                                                batch.set(newLogReference, log, SetOptions.merge());
+                                                batch.set(documentReference, file, SetOptions.merge());
+
+                                                // Commit the batch to execute all the writes together
+                                                batch.commit().addOnCompleteListener(batchTask -> {
                                                     loading.setVisibility(View.GONE);
-                                                    if (dbTask.isSuccessful()) {
+                                                    if (batchTask.isSuccessful()) {
                                                         Toast.makeText(UserProfile.this, "File Uploaded", Toast.LENGTH_SHORT).show();
                                                         finish();
                                                     } else {
-                                                        Toast.makeText(UserProfile.this, dbTask.getException().getMessage(), Toast.LENGTH_LONG).show();
-                                                        Log.d(TAG, dbTask.getException().getMessage());
+                                                        Toast.makeText(UserProfile.this, batchTask.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                                        Log.d(TAG, batchTask.getException().getMessage());
                                                     }
                                                 });
-                                            }
-                                            else{
+                                            } else {
                                                 loading.setVisibility(View.GONE);
                                             }
                                         });
+
+//                                        FirebaseStorageHelper.uploadBitmapToFirebaseStorage(qrBitmap, fileName, folder, storageTask -> {
+//                                            if(storageTask.isSuccessful()){
+//                                                Uri downloadUri = storageTask.getResult();
+//                                                String qrUrl = downloadUri.toString();
+//                                                DocumentReference documentReference = FirebaseFirestore.getInstance().collection("Files").document();
+//                                                // Use the image URL as needed (e.g., save it to a database)
+//                                                File file = new File(documentReference.getId(), URL, qrUrl, fileName, fileExtension, visibility, profile.getName(), timestamp, UID);
+//                                                file.setStatus(editStatus.getText().toString());
+//
+//
+//                                                documentReference.set(file, SetOptions.merge()).addOnCompleteListener(dbTask -> {
+//                                                    loading.setVisibility(View.GONE);
+//                                                    if (dbTask.isSuccessful()) {
+//                                                        Toast.makeText(UserProfile.this, "File Uploaded", Toast.LENGTH_SHORT).show();
+//                                                        finish();
+//                                                    } else {
+//                                                        Toast.makeText(UserProfile.this, dbTask.getException().getMessage(), Toast.LENGTH_LONG).show();
+//                                                        Log.d(TAG, dbTask.getException().getMessage());
+//                                                    }
+//                                                });
+//                                            }
+//                                            else{
+//                                                loading.setVisibility(View.GONE);
+//                                            }
+//                                        });
                                     });
                                 });
                             } else {

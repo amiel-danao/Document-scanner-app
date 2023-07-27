@@ -20,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.thesis.documentscanner.Models.Employee;
 import com.thesis.documentscanner.Views.Home.AccountsFragment;
 import com.thesis.documentscanner.Views.Home.HomeFragment;
+import com.thesis.documentscanner.Views.Log.LogFragment;
 import com.thesis.documentscanner.Views.PrivateRepo.PrivateRepoFragment;
 import com.thesis.documentscanner.Views.QRScannerFragment;
 import com.thesis.documentscanner.Views.userprofile.UserProfile;
@@ -130,7 +131,12 @@ public class Home extends AppCompatActivity {
                                 toggleMenu(false);
                             }
                             break;
-
+                        case R.id.logs_activity:
+                            selectedFragment = new LogFragment();
+                            if (getSupportActionBar() != null) {
+                                toggleMenu(false);
+                            }
+                            break;
                     }
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                             selectedFragment).commit();

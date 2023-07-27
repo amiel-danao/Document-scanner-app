@@ -1,9 +1,10 @@
 package com.thesis.documentscanner.Views.PrivateRepo;
 
+import static com.thesis.documentscanner.util.LogUtils.writeLog;
+
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
 import android.view.LayoutInflater;
@@ -23,16 +24,12 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.thesis.documentscanner.Models.File;
 import com.thesis.documentscanner.R;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,11 +37,10 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import android.app.DownloadManager;
-
 public class PrivateRepoAdapter extends RecyclerView.Adapter {
     private static final String TAG = "PrivateRepoAdapter";
     private final SimpleDateFormat formatter;
+    private final FirebaseAuth auth;
 
     private ArrayList<File> files;
     private Context mContext;
@@ -54,6 +50,7 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
         this.files = files;
         this.mContext = mContext;
         formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a", Locale.ENGLISH);
+        auth = FirebaseAuth.getInstance();
     }
 
     @NonNull
@@ -86,8 +83,6 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
 
         fileViewHolder.downloadButton.setTag(file);
         fileViewHolder.downloadButton.setOnClickListener(downloadClickListener);
-
-
     }
 
     final View.OnClickListener downloadQRClickListener = new View.OnClickListener() {
@@ -104,6 +99,8 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
 
             if (downloadManager != null) {
                 downloadManager.enqueue(request);
+                String logMessage = String.format("QR downloaded: %s", file.getName());
+                writeLog(logMessage, auth.getCurrentUser().getUid());
             }
         }
     };
@@ -122,8 +119,10 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
 
             if (downloadManager != null) {
                 downloadManager.enqueue(request);
-            }
 
+                String logMessage = String.format("File downloaded: %s", file.getName());
+                writeLog(logMessage, auth.getCurrentUser().getUid());
+            }
         }
     };
 
@@ -145,31 +144,25 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
                 EditText editStatus = dialogView.findViewById(R.id.editStatus);
 
                 ImageButton btnSaveStatus = dialogView.findViewById(R.id.btnSaveStatus);
-                btnSaveStatus.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if(editStatus.getText().toString().isEmpty()){
-                            Toast.makeText(mContext, "Please input a status", Toast.LENGTH_SHORT).show();
-                            editStatus.setError("Please input a status");
-                            return;
-                        }
-
-                        Map<String, Object> data = new HashMap<>();
-                        data.put("status", editStatus.getText().toString());
-                        FirebaseFirestore.getInstance().collection("Files").document(file.getDocId())
-                            .set(data, SetOptions.merge())
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
-                                        Toast.makeText(mContext, "Status was updated successfully", Toast.LENGTH_SHORT).show();
-                                    }
-                                    else{
-                                        Toast.makeText(mContext, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
+                btnSaveStatus.setOnClickListener(view -> {
+                    if(editStatus.getText().toString().isEmpty()){
+                        Toast.makeText(mContext, "Please input a status", Toast.LENGTH_SHORT).show();
+                        editStatus.setError("Please input a status");
+                        return;
                     }
+
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("status", editStatus.getText().toString());
+                    FirebaseFirestore.getInstance().collection("Files").document(file.getDocId())
+                        .set(data, SetOptions.merge())
+                        .addOnCompleteListener(task -> {
+                            if(task.isSuccessful()){
+                                Toast.makeText(mContext, "Status was updated successfully", Toast.LENGTH_SHORT).show();
+                            }
+                            else{
+                                Toast.makeText(mContext, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
                 });
             }
             else{
@@ -191,21 +184,13 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
             // Create and show the AlertDialog
             AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
             builder.setView(dialogView)
-                    .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
+                    .setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
             AlertDialog alertDialog = builder.create();
 
 // Set a different text color for the positive button
-            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface dialog) {
-                    Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-                    positiveButton.setTextColor(ContextCompat.getColor(mContext, android.R.color.black));
-                }
+            alertDialog.setOnShowListener(dialog -> {
+                Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                positiveButton.setTextColor(ContextCompat.getColor(mContext, android.R.color.black));
             });
 
 // Show the AlertDialog

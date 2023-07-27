@@ -2,7 +2,7 @@
 [ok]Edit search bar name
 [ok]App Icon provided
 [ok]Add icon labels
-add deactivate/delete account admin only
-logs for every user type
+[ok]add deactivate/delete account admin only
+[ok]logs for every user type
 [ok]CVSU Color Scheme
 [ok]change Font 

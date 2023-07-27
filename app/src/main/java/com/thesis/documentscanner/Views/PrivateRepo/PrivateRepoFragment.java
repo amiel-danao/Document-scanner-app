@@ -1,5 +1,7 @@
 package com.thesis.documentscanner.Views.PrivateRepo;
 
+import static com.thesis.documentscanner.common.Constants.USERS_COLLECTION;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,7 +35,6 @@ import java.util.ArrayList;
 public class PrivateRepoFragment extends Fragment {
 
     private ArrayList<File> files ;
-
     private Employee profile;
     private PrivateRepoAdapter adapter;
     private RecyclerView recyclerView;
@@ -83,7 +84,7 @@ public class PrivateRepoFragment extends Fragment {
             }
         });
 
-        FirebaseFirestore.getInstance().collection("Users").document(fAuth.getCurrentUser().getUid())
+        FirebaseFirestore.getInstance().collection(USERS_COLLECTION).document(fAuth.getCurrentUser().getUid())
         .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {

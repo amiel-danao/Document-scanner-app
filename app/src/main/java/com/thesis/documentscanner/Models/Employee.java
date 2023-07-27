@@ -6,17 +6,27 @@ public class Employee {
     private String email;
     private String avatar;
     private String role;
+    private String status = "active";
 
     public Employee(){
 
     }
 
-    public Employee(String name, String UID, String email, String avatar, String role) {
+    public Employee(String name, String UID, String email, String avatar, String role, String status) {
         this.name = name;
         this.UID = UID;
         this.email = email;
         this.avatar = avatar;
         this.role = role;
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getName() {

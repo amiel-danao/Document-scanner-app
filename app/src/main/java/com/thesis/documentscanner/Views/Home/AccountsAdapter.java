@@ -1,39 +1,31 @@
 package com.thesis.documentscanner.Views.Home;
 
-import android.app.DownloadManager;
+import static com.thesis.documentscanner.common.Constants.USERS_COLLECTION;
+import static com.thesis.documentscanner.util.LogUtils.writeLog;
+
 import android.content.Context;
-import android.content.DialogInterface;
-import android.net.Uri;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.thesis.documentscanner.Models.Employee;
-import com.thesis.documentscanner.Models.File;
 import com.thesis.documentscanner.R;
 
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class AccountsAdapter extends RecyclerView.Adapter<AccountsAdapter.MyViewHolder> {
-
-    private static final String TAG = "RecyclerviewAdapter";
-    private final SimpleDateFormat formatter;
+    private final FirebaseAuth auth;
 
     Context context;
 
@@ -42,7 +34,7 @@ public class AccountsAdapter extends RecyclerView.Adapter<AccountsAdapter.MyView
     public AccountsAdapter(Context context, List<Employee> list) {
         this.context = context;
         this.list = list;
-        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a", Locale.ENGLISH);
+        auth = FirebaseAuth.getInstance();
     }
 
     @NonNull
@@ -60,22 +52,42 @@ public class AccountsAdapter extends RecyclerView.Adapter<AccountsAdapter.MyView
         holder.role.setText(employee.getRole());
         holder.email.setText(employee.getEmail());
 
-//        Glide.with(context)
-//                .asBitmap()
-//                .load(file.getQrUrl())
-//                .into(holder.Avatar);
-
+        holder.statusSwitch.setChecked(employee.getStatus() == null || employee.getStatus().equals("active"));
         holder.parent_layout.setTag(employee);
+
+        if(employee.getUID().equals(auth.getCurrentUser().getUid())) {
+            holder.statusSwitch.setVisibility(View.GONE);
+        }
+        else {
+            holder.statusSwitch.setVisibility(View.VISIBLE);
+            holder.statusSwitch.setTag(employee);
+            holder.statusSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    changeAccountStatus(employee.getUID(), "active", employee.getEmail());
+                } else {
+                    changeAccountStatus(employee.getUID(), "inactive", employee.getEmail());
+                }
+            });
+        }
     }
 
+    private void changeAccountStatus(String uid, String status, String email) {
 
-    final View.OnClickListener enlargeQRClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Employee employee = (Employee)v.getTag();
-
-        }
-    };
+        DocumentReference userDocumentRef = FirebaseFirestore.getInstance().collection(USERS_COLLECTION)
+                .document(uid);
+        userDocumentRef.update("status", status)
+        .addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(context, "Account status was changed", Toast.LENGTH_LONG).show();
+                String logMessage = String.format("Account status changed to %s: %s", status, email);
+                writeLog(logMessage, auth.getCurrentUser().getUid());
+            } else {
+                // User status update failed
+                // TODO: Handle the deactivation failure case here
+                Toast.makeText(context, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 
     @Override
     public int getItemCount() {
@@ -87,6 +99,7 @@ public class AccountsAdapter extends RecyclerView.Adapter<AccountsAdapter.MyView
         TextView employeeName, role, email;
         ImageView Avatar;
         CardView parent_layout;
+        Switch statusSwitch;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -95,6 +108,7 @@ public class AccountsAdapter extends RecyclerView.Adapter<AccountsAdapter.MyView
             role = itemView.findViewById(R.id.txtSender);
             email = itemView.findViewById(R.id.email);
             Avatar = itemView.findViewById(R.id.avatar);
+            statusSwitch = itemView.findViewById(R.id.statusSwitch);
             parent_layout = itemView.findViewById(R.id.parent_layout);
         }
     }

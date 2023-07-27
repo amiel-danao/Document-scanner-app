@@ -1,5 +1,7 @@
 package com.thesis.documentscanner.Views.Home;
 
+import static com.thesis.documentscanner.util.LogUtils.writeLog;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,10 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,7 +41,7 @@ public class AccountsFragment extends Fragment {
     private FloatingActionButton fab;
     private EditText editName, editEmail, editPassword, editConfirmPassword;
     private Button createAccountButton;
-    private FirebaseAuth mAuth;
+    private FirebaseAuth auth;
     private View loading;
     private RadioGroup radioGroup;
     private View parent;
@@ -64,7 +63,7 @@ public class AccountsFragment extends Fragment {
         radioGroup = parent.findViewById(R.id.radioGroup);
         createAccountButton = parent.findViewById(R.id.createAccountButton);
 
-        mAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         createAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,61 +132,45 @@ public class AccountsFragment extends Fragment {
     private void registerUserWithEmailAndPassword(String email, String password) {
         loading.setVisibility(View.VISIBLE);
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    // Registration success
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    int selectedRadioButtonId = radioGroup.getCheckedRadioButtonId();
-                    String role = "User";
+        auth.createUserWithEmailAndPassword(email, password)
+        .addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Registration success
+                FirebaseUser user = auth.getCurrentUser();
+                int selectedRadioButtonId = radioGroup.getCheckedRadioButtonId();
+                String role = "User";
 
-                    if (selectedRadioButtonId != -1) {
-                        RadioButton selectedRadioButton = parent.findViewById(selectedRadioButtonId);
-                        role = selectedRadioButton.getText().toString();
-                    }
-
-                    Employee employee = new Employee(editName.getText().toString(), user.getUid(), user.getEmail(), "", role);
-                    FirebaseFirestore.getInstance().collection("Users").document(user.getUid())
-                        .set(employee, SetOptions.merge()).addOnCompleteListener(task1 -> {
-                            if(task1.isSuccessful()){
-                                Toast.makeText(getContext(), "Account was created successfully:",
-                                        Toast.LENGTH_SHORT).show();
-                                clearForm();
-                            }
-                            else{
-                                Toast.makeText(getContext(), "Profile creation:" + task1.getException().getMessage(),
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        });
-//                    sendEmailVerification(user);
-                } else {
-                    // Registration failed
-                    Toast.makeText(getContext(), "Registration failed:" + task.getException().getMessage(),
-                            Toast.LENGTH_LONG).show();
+                if (selectedRadioButtonId != -1) {
+                    RadioButton selectedRadioButton = parent.findViewById(selectedRadioButtonId);
+                    role = selectedRadioButton.getText().toString();
                 }
 
-                loading.setVisibility(View.GONE);
+                Employee employee = new Employee(editName.getText().toString(), user.getUid(), user.getEmail(), "", role, "active");
+                String finalRole = role;
+                FirebaseFirestore.getInstance().collection("Users").document(user.getUid())
+                    .set(employee, SetOptions.merge()).addOnCompleteListener(task1 -> {
+                        if(task1.isSuccessful()){
+                            Toast.makeText(getContext(), "Account was created successfully:",
+                                    Toast.LENGTH_SHORT).show();
+                            clearForm();
+                            String logMessage = String.format("Account created(%s): %s", finalRole, employee.getEmail());
+                            writeLog(logMessage, auth.getCurrentUser().getUid());
+                        }
+                        else{
+                            Toast.makeText(getContext(), "Profile creation:" + task1.getException().getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+//                    sendEmailVerification(user);
+            } else {
+                // Registration failed
+                Toast.makeText(getContext(), "Registration failed:" + task.getException().getMessage(),
+                        Toast.LENGTH_LONG).show();
             }
+
+            loading.setVisibility(View.GONE);
         });
     }
-
-//    private void sendEmailVerification(FirebaseUser user) {
-//        user.sendEmailVerification()
-//        .addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                // Email verification sent
-//                Toast.makeText(getContext(),
-//                        "Email verification sent. Please check your email.",
-//                        Toast.LENGTH_SHORT).show();
-//            } else {
-//                // Email verification sending failed
-//                Toast.makeText(getContext(),
-//                        "Failed to send email verification.", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
 
     private void fetchAccounts() {
         if(adapter != null){
