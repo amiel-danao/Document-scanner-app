@@ -99,14 +99,12 @@
                         android:textAlignment="textStart"
                         android:textStyle="bold" />
 
-                    <EditText
+                    <Spinner
                         android:id="@+id/editStatus"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight=".7"
-                        android:ems="10"
-                        android:inputType="textPersonName"
-                        android:text="Pending" />
+                        android:entries="@array/states" />
                 </LinearLayout>
 
                 <TextView

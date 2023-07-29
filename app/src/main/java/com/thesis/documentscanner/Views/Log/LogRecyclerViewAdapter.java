@@ -8,7 +8,6 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.thesis.documentscanner.Models.Employee;
 import com.thesis.documentscanner.Models.Log;
 import com.thesis.documentscanner.databinding.FragmentLogBinding;
 
@@ -41,17 +40,8 @@ public class LogRecyclerViewAdapter extends RecyclerView.Adapter<LogRecyclerView
         holder.mItem = mValues.get(position);
         holder.mLogDate.setText(dateTimeFormat.format(mValues.get(position).getDate()));
         if(isAdmin) {
-
-            mValues.get(position).getUser().get().addOnCompleteListener(task -> {
-                if(task.isSuccessful()) {
-                    holder.mLogUser.setVisibility(View.VISIBLE);
-                    Employee employee = task.getResult().toObject(Employee.class);
-                    holder.mLogUser.setText(employee.getName());
-                }
-                else{
-                    holder.mLogUser.setVisibility(View.GONE);
-                }
-            });
+            holder.mLogUser.setVisibility(View.VISIBLE);
+            holder.mLogUser.setText(mValues.get(position).getUser());
         }
         else{
             holder.mLogUser.setVisibility(View.GONE);

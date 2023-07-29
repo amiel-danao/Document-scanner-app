@@ -1,7 +1,5 @@
 package com.thesis.documentscanner.Views.Log;
 
-import static com.thesis.documentscanner.common.Constants.USERS_COLLECTION;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,7 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -31,6 +29,7 @@ public class LogFragment extends RequireLoginFragment {
     private Context context;
     List<Log> logs = new ArrayList<>();
     private LogRecyclerViewAdapter adapter;
+    private FirebaseAuth auth;
 
     public LogFragment() {
     }
@@ -40,7 +39,7 @@ public class LogFragment extends RequireLoginFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_log_list, container, false);
-
+        auth = FirebaseAuth.getInstance();
         // Set the adapter
         if (view instanceof RecyclerView) {
             context = view.getContext();
@@ -69,14 +68,11 @@ public class LogFragment extends RequireLoginFragment {
             query = FirebaseFirestore.getInstance().collection("Logs").orderBy("date", Query.Direction.DESCENDING);
         }
         else{
-            DocumentReference userRef = FirebaseFirestore.getInstance().collection(USERS_COLLECTION).document(loggedInUser.getUID());
-            query = FirebaseFirestore.getInstance().collection("Logs").whereEqualTo("user", userRef).orderBy("date", Query.Direction.DESCENDING);
+            query = FirebaseFirestore.getInstance().collection("Logs").whereEqualTo("uid", auth.getCurrentUser().getUid()).orderBy("date", Query.Direction.DESCENDING);
         }
 
         adapter = new LogRecyclerViewAdapter(logs, isAdmin);
         recyclerView.setAdapter(adapter);
-
-
 
         query.get().addOnCompleteListener(task -> {
             if(task.isSuccessful()) {

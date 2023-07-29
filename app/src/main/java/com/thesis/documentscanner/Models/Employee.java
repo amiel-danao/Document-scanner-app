@@ -1,7 +1,7 @@
 package com.thesis.documentscanner.Models;
 
 public class Employee {
-    private String name;
+    private String name = "";
     private String UID;
     private String email;
     private String avatar;

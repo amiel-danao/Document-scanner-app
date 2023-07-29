@@ -18,7 +18,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.thesis.documentscanner.Models.Employee;
-import com.thesis.documentscanner.Views.Home.AccountsFragment;
+import com.thesis.documentscanner.Views.Account.AccountsFragment;
 import com.thesis.documentscanner.Views.Home.HomeFragment;
 import com.thesis.documentscanner.Views.Log.LogFragment;
 import com.thesis.documentscanner.Views.PrivateRepo.PrivateRepoFragment;

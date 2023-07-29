@@ -22,7 +22,7 @@
             android:name="com.thesis.documentscanner.Home"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.thesis.documentscanner.Views.Home.AccountsFragment"
+            android:name="com.thesis.documentscanner.Views.Account.AccountsFragment"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.thesis.documentscanner.MainActivity"

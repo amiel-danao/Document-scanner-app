@@ -118,7 +118,7 @@ public class QRScannerFragment extends Fragment implements SurfaceHolder.Callbac
                 if (downloadManager != null) {
                     downloadManager.enqueue(request);
                     String logMessage = String.format("QR scanned: %s", fullFileName);
-                    writeLog(logMessage, auth.getCurrentUser().getUid());
+                    writeLog(logMessage, auth.getCurrentUser().getDisplayName(), auth.getCurrentUser().getUid());
                 }
             }
         });

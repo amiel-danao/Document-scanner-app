@@ -100,7 +100,7 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
             if (downloadManager != null) {
                 downloadManager.enqueue(request);
                 String logMessage = String.format("QR downloaded: %s", file.getName());
-                writeLog(logMessage, auth.getCurrentUser().getUid());
+                writeLog(logMessage, auth.getCurrentUser().getDisplayName(), auth.getCurrentUser().getUid());
             }
         }
     };
@@ -121,7 +121,7 @@ public class PrivateRepoAdapter extends RecyclerView.Adapter {
                 downloadManager.enqueue(request);
 
                 String logMessage = String.format("File downloaded: %s", file.getName());
-                writeLog(logMessage, auth.getCurrentUser().getUid());
+                writeLog(logMessage, auth.getCurrentUser().getDisplayName(), auth.getCurrentUser().getUid());
             }
         }
     };

@@ -92,6 +92,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth'
     //Firebase analytics
     implementation 'com.google.firebase:firebase-analytics'
+    implementation("com.google.firebase:firebase-functions")
+
     android.defaultConfig.vectorDrawables.useSupportLibrary = true
     //firebase storage and database
     implementation 'com.google.firebase:firebase-firestore'

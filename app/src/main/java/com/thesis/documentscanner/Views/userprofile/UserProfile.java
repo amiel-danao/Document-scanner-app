@@ -1,6 +1,5 @@
 package com.thesis.documentscanner.Views.userprofile;
 
-import static com.thesis.documentscanner.common.Constants.USERS_COLLECTION;
 import static com.thesis.documentscanner.util.AddImageInExcel.attachImageToExcel;
 import static com.thesis.documentscanner.util.AddImageToDocx.addImageToDocx;
 
@@ -19,6 +18,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,7 +78,7 @@ public class UserProfile extends AppCompatActivity {
     private SimpleDateFormat simpleDateTimeFormat;
     private SwitchCompat visibilitySwitch;
     private TextView fileTypeEdit;
-    private EditText editStatus;
+    private Spinner editStatus;
     AlertDialog alertDialog;
     private ArrayList<String> permissionsList;
     private String[] permissionsStr;
@@ -187,11 +187,6 @@ public class UserProfile extends AppCompatActivity {
     private boolean isFormValid(){
         if(fileNameEdit.getText().toString().trim().isEmpty()){
             fileNameEdit.setError("This field is required");
-            return false;
-        }
-
-        if(editStatus.getText().toString().isEmpty()){
-            editStatus.setError("This field is required");
             return false;
         }
         return true;
@@ -313,11 +308,10 @@ public class UserProfile extends AppCompatActivity {
                                                 WriteBatch batch = FirebaseFirestore.getInstance().batch();
                                                 // Use the image URL as needed (e.g., save it to a database)
                                                 File file = new File(documentReference.getId(), URL, qrUrl, fileName, fileExtension, visibility, profile.getName(), timestamp, UID);
-                                                file.setStatus(editStatus.getText().toString());
+                                                file.setStatus(editStatus.getSelectedItem().toString());
 
-                                                DocumentReference currentUserRef = FirebaseFirestore.getInstance().collection(USERS_COLLECTION).document(auth.getCurrentUser().getUid());
                                                 String logMessage = String.format("File uploaded: %s.%s", fileName, fileExtension);
-                                                com.thesis.documentscanner.Models.Log log = new com.thesis.documentscanner.Models.Log(new Date(), currentUserRef, logMessage);
+                                                com.thesis.documentscanner.Models.Log log = new com.thesis.documentscanner.Models.Log(new Date(), auth.getCurrentUser().getDisplayName(), logMessage, auth.getCurrentUser().getUid());
 
                                                 DocumentReference newLogReference = FirebaseFirestore.getInstance().collection("Logs").document();
                                                 // Add the document to the batch
@@ -339,32 +333,6 @@ public class UserProfile extends AppCompatActivity {
                                                 loading.setVisibility(View.GONE);
                                             }
                                         });
-
-//                                        FirebaseStorageHelper.uploadBitmapToFirebaseStorage(qrBitmap, fileName, folder, storageTask -> {
-//                                            if(storageTask.isSuccessful()){
-//                                                Uri downloadUri = storageTask.getResult();
-//                                                String qrUrl = downloadUri.toString();
-//                                                DocumentReference documentReference = FirebaseFirestore.getInstance().collection("Files").document();
-//                                                // Use the image URL as needed (e.g., save it to a database)
-//                                                File file = new File(documentReference.getId(), URL, qrUrl, fileName, fileExtension, visibility, profile.getName(), timestamp, UID);
-//                                                file.setStatus(editStatus.getText().toString());
-//
-//
-//                                                documentReference.set(file, SetOptions.merge()).addOnCompleteListener(dbTask -> {
-//                                                    loading.setVisibility(View.GONE);
-//                                                    if (dbTask.isSuccessful()) {
-//                                                        Toast.makeText(UserProfile.this, "File Uploaded", Toast.LENGTH_SHORT).show();
-//                                                        finish();
-//                                                    } else {
-//                                                        Toast.makeText(UserProfile.this, dbTask.getException().getMessage(), Toast.LENGTH_LONG).show();
-//                                                        Log.d(TAG, dbTask.getException().getMessage());
-//                                                    }
-//                                                });
-//                                            }
-//                                            else{
-//                                                loading.setVisibility(View.GONE);
-//                                            }
-//                                        });
                                     });
                                 });
                             } else {

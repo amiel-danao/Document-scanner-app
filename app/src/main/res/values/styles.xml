@@ -9,7 +9,7 @@
 
     <!-- styles.xml -->
     <style name="CustomPositiveButtonStyle" parent="Widget.AppCompat.Button">
-        <item name="android:textColor">@color/custom_positive_button_text_color</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 
 </resources>

@@ -1,22 +1,30 @@
 package com.thesis.documentscanner.Models;
 
-import com.google.firebase.firestore.DocumentReference;
-
 import java.util.Date;
 
 public class Log {
     private Date date;
-    private DocumentReference user;
+    private String user;
+    private String uid;
     private String message;
 
     public Log() {
         // Default constructor required for Firebase Realtime Database
     }
 
-    public Log(Date date, DocumentReference user, String message) {
+    public Log(Date date, String user, String message, String uid) {
         this.date = date;
         this.user = user;
         this.message = message;
+        this.uid = uid;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public Date getDate() {
@@ -27,11 +35,11 @@ public class Log {
         this.date = date;
     }
 
-    public DocumentReference getUser() {
+    public String getUser() {
         return user;
     }
 
-    public void setUser(DocumentReference user) {
+    public void setUser(String user) {
         this.user = user;
     }
 
