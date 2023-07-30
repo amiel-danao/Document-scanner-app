@@ -141,20 +141,23 @@ public class AccountsFragment extends Fragment {
                     data.put("name", editedUserName);
 
                     mFunctions
-                            .getHttpsCallable("updateUserName")
-                            .call(data)
-                            .continueWith(task -> {
-                                String result = (String) task.getResult().getData();
-                                Toast.makeText(getContext(), "Account was updated successfully",
-                                        Toast.LENGTH_SHORT).show();
-                                return result;
-                            });
+                        .getHttpsCallable("updateUserName")
+                        .call(data)
+                        .continueWith(task -> {
+                            String result = (String) task.getResult().getData();
+                            adapter.notifyItemChanged(accounts.indexOf(employee));
+                            Toast.makeText(getContext(), "Account was updated successfully",
+                                    Toast.LENGTH_SHORT).show();
+                            return result;
+                        });
+
                 }
                 else{
                     Toast.makeText(getContext(), "Account was updated successfully:",
                             Toast.LENGTH_SHORT).show();
                 }
 
+                adapter.notifyItemChanged(accounts.indexOf(employee));
                 clearForm();
                 String logMessage = String.format("Account updated(%s): %s", finalRole, employee.getEmail());
                 writeLog(logMessage, auth.getCurrentUser().getDisplayName(), auth.getCurrentUser().getUid());
@@ -242,6 +245,8 @@ public class AccountsFragment extends Fragment {
 
                                     return result;
                                 });
+
+                            adapter.notifyItemInserted(accounts.size()-1);
                             Toast.makeText(getContext(), "Account was created successfully:",
                                     Toast.LENGTH_SHORT).show();
                             clearForm();

@@ -1,5 +1,7 @@
 package com.thesis.documentscanner.Views.Log;
 
+import static com.thesis.documentscanner.common.Constants.USERS_COLLECTION;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.thesis.documentscanner.Models.Employee;
 import com.thesis.documentscanner.Models.Log;
 import com.thesis.documentscanner.databinding.FragmentLogBinding;
 
@@ -41,7 +44,19 @@ public class LogRecyclerViewAdapter extends RecyclerView.Adapter<LogRecyclerView
         holder.mLogDate.setText(dateTimeFormat.format(mValues.get(position).getDate()));
         if(isAdmin) {
             holder.mLogUser.setVisibility(View.VISIBLE);
-            holder.mLogUser.setText(mValues.get(position).getUser());
+            String userName = holder.mItem.getUser();
+            if(userName.isEmpty()) {
+                FirebaseFirestore.getInstance().collection(USERS_COLLECTION).document(holder.mItem.getUid()).get()
+                    .addOnCompleteListener(task -> {
+                        if(task.isSuccessful()) {
+                            Employee employee = task.getResult().toObject(Employee.class);
+                            holder.mLogUser.setText(employee.getName());
+                        }
+                    });
+            }
+            else{
+                holder.mLogUser.setText(userName);
+            }
         }
         else{
             holder.mLogUser.setVisibility(View.GONE);
