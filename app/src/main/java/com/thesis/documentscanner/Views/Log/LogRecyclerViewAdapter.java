@@ -45,7 +45,7 @@ public class LogRecyclerViewAdapter extends RecyclerView.Adapter<LogRecyclerView
         if(isAdmin) {
             holder.mLogUser.setVisibility(View.VISIBLE);
             String userName = holder.mItem.getUser();
-            if(userName.isEmpty()) {
+            if(userName == null || userName.isEmpty()) {
                 FirebaseFirestore.getInstance().collection(USERS_COLLECTION).document(holder.mItem.getUid()).get()
                     .addOnCompleteListener(task -> {
                         if(task.isSuccessful()) {
